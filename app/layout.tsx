@@ -15,11 +15,16 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="h-full scroll-smooth">
-      <body className="h-full bg-slate-50">
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+      </head>
+      <body className="h-full bg-[#f8fafc]" style={{ fontFamily: "'Inter', system-ui, sans-serif" }}>
         <AuthWrapper>
           <div className="flex h-screen">
             <Sidebar />
-            <main className="flex-1 overflow-auto md:ml-64">{children}</main>
+            <main className="flex-1 overflow-auto md:ml-64 bg-[#f8fafc]">{children}</main>
           </div>
         </AuthWrapper>
       </body>

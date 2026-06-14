@@ -27,25 +27,25 @@ export default function ComponentsPage() {
   }
 
   return (
-    <div className="p-6">
+    <div className="p-6 md:p-8 max-w-7xl mx-auto">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900">Components</h1>
-          <p className="text-slate-600 mt-1">Manage your inventory components</p>
+          <h1 className="text-3xl font-extrabold tracking-tight text-gray-900">Components</h1>
+          <p className="text-gray-500 mt-1 text-sm">Manage your inventory components</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-3">
           <button
             onClick={handleExportCSV}
-            className="flex items-center gap-2 px-4 py-2 border border-slate-300 rounded-lg text-slate-700 hover:bg-slate-50"
+            className="flex items-center gap-2 px-4 py-2.5 border border-gray-200 rounded-xl text-gray-700 hover:bg-gray-50 text-sm font-medium transition-colors"
           >
-            <Download size={18} />
+            <Download size={16} />
             Export CSV
           </button>
           <Link
             href="/components/new"
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            className="flex items-center gap-2 px-4 py-2.5 bg-violet-600 text-white rounded-xl hover:bg-violet-700 text-sm font-medium shadow-sm shadow-violet-600/20 transition-colors"
           >
-            <Plus size={18} />
+            <Plus size={16} />
             Add Component
           </Link>
         </div>
