@@ -107,7 +107,7 @@ export async function deleteProduct(id: string) {
 export async function calculateProductionCapacity(productId: string, desiredQuantity: number) {
   try {
     const product = await prisma.product.findUnique({
-      where: { id },
+      where: { id: productId },
       include: {
         bomItems: {
           include: {

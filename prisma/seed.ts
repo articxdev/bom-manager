@@ -7,7 +7,7 @@ async function main() {
 
   // Clear existing data
   await prisma.transaction.deleteMany();
-  await prisma.bomItem.deleteMany();
+  await prisma.bOMItem.deleteMany();
   await prisma.product.deleteMany();
   await prisma.component.deleteMany();
 

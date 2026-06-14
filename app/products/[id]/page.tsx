@@ -1,13 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, use } from "react";
 import { getProduct, calculateProductionCapacity } from "@/app/actions/products";
 import { formatDate, formatNumber } from "@/lib/format";
 import { useRouter, useParams } from "next/navigation";
 
-export default function ProductDetailPage({ params }: { params: { id: string } }) {
+export default function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
-  const { id } = params;
+  const { id } = use(params);
   const [product, setProduct] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [capacityQuery, setCapacityQuery] = useState(1);

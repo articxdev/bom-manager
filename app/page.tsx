@@ -28,10 +28,10 @@ export default function Dashboard() {
   useEffect(() => {
     async function loadDashboard() {
       const result = await getDashboardData();
-      if (result.success) {
+      if (result.success && result.data) {
         setData(result.data);
       } else {
-        setError(result.error);
+        setError(result.error || "Failed to load dashboard data");
       }
       setLoading(false);
     }

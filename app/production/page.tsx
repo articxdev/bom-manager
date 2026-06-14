@@ -30,7 +30,7 @@ export default function ProductionPage() {
 
   async function loadProductPreview(productId: string) {
     const result = await getProduct(productId);
-    if (result.success) {
+    if (result.success && result.data) {
       const product = result.data;
       setPreview(
         product.bomItems.map((item: any) => ({
@@ -64,10 +64,10 @@ export default function ProductionPage() {
     if (result.success) {
       router.push("/history");
     } else {
-      if ("insufficientItems" in result) {
+      if ("insufficientItems" in result && result.insufficientItems) {
         setInsufficientItems(result.insufficientItems);
       }
-      setError(result.error);
+      setError(result.error || "Failed to record production");
     }
 
     setLoading(false);

@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, use } from "react";
 import { getComponent } from "@/app/actions/components";
 import { ComponentForm } from "@/app/components/forms/ComponentForm";
 import { StockAdjustmentForm } from "@/app/components/forms/StockAdjustmentForm";
@@ -9,9 +9,9 @@ import { formatDate, formatNumber } from "@/lib/format";
 import { useState as useStdState } from "react";
 import { AlertTriangle } from "lucide-react";
 
-export default function ComponentDetailPage({ params }: { params: { id: string } }) {
+export default function ComponentDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
-  const { id } = params;
+  const { id } = use(params);
   const [component, setComponent] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [editMode, setEditMode] = useState(false);

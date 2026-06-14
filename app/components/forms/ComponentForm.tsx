@@ -38,7 +38,7 @@ export function ComponentForm({ component, onClose }: ComponentFormProps) {
         router.refresh();
         onClose?.();
       } else {
-        setError(result.error);
+        setError(result.error || "An error occurred");
       }
     } catch (err: any) {
       setError(err.message || "Validation failed");

@@ -20,7 +20,7 @@ export default function StockInPage() {
 
   async function loadComponents() {
     const result = await getComponents();
-    if (result.success) {
+    if (result.success && result.data) {
       setComponents(result.data);
     }
   }
@@ -39,7 +39,7 @@ export default function StockInPage() {
     if (result.success) {
       router.push("/history");
     } else {
-      setError(result.error);
+      setError(result.error || "Failed to record stock in");
     }
 
     setLoading(false);

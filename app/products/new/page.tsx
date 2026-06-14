@@ -21,7 +21,7 @@ export default function NewProductPage() {
 
   async function loadComponents() {
     const result = await getComponents();
-    if (result.success) {
+    if (result.success && result.data) {
       setComponents(result.data);
     }
   }
@@ -53,7 +53,7 @@ export default function NewProductPage() {
     if (result.success) {
       router.push("/products");
     } else {
-      setError(result.error);
+      setError(result.error || "An error occurred");
     }
 
     setLoading(false);

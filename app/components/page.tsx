@@ -12,7 +12,7 @@ export default function ComponentsPage() {
 
   async function handleExportCSV() {
     const result = await getComponents();
-    if (result.success) {
+    if (result.success && result.data) {
       const headers = ["Name", "Category", "Unit", "Current Stock", "Reorder Threshold"];
       const rows = result.data.map((c) => [
         c.name,

@@ -21,7 +21,7 @@ export default function DamagePage() {
 
   async function loadComponents() {
     const result = await getComponents();
-    if (result.success) {
+    if (result.success && result.data) {
       setComponents(result.data);
     }
   }
@@ -45,7 +45,7 @@ export default function DamagePage() {
     if (result.success) {
       router.push("/history");
     } else {
-      setError(result.error);
+      setError(result.error || "An error occurred");
     }
 
     setLoading(false);

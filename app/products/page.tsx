@@ -19,7 +19,7 @@ export default function ProductsPage() {
   async function loadProducts() {
     setLoading(true);
     const result = await getProducts(search || undefined);
-    if (result.success) {
+    if (result.success && result.data) {
       setProducts(result.data);
     }
     setLoading(false);

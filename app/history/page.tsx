@@ -22,7 +22,7 @@ export default function HistoryPage() {
   async function loadTransactions() {
     setLoading(true);
     const result = await getTransactionHistory(10, (page - 1) * 10);
-    if (result.success) {
+    if (result.success && result.data) {
       setTransactions(result.data.transactions);
       setTotal(result.data.total);
       setPages(result.data.pages);

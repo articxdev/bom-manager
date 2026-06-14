@@ -25,7 +25,7 @@ export function ComponentsList({ onEdit }: ComponentsListProps) {
   async function loadComponents() {
     setLoading(true);
     const result = await getComponents(search || undefined, category || undefined);
-    if (result.success) {
+    if (result.success && result.data) {
       setComponents(result.data);
       // Extract unique categories
       const uniqueCategories = [...new Set(result.data.map((c) => c.category))];
