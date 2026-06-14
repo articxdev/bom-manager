@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { adjustComponentStock } from "@/app/actions/components";
-import { manualAdjustmentSchema, ManualAdjustmentInput } from "@/lib/schemas";
+import { manualAdjustmentSchema } from "@/lib/schemas";
 import { getLoggedInUser } from "@/lib/auth";
 
 interface StockAdjustmentFormProps {
@@ -22,10 +22,10 @@ export function StockAdjustmentForm({
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [formData, setFormData] = useState<ManualAdjustmentInput>({
-    quantityChange: 0,
-    note: "",
-  });
+  
+  // Use state variables that support empty strings for editing comfort
+  const [quantityInput, setQuantityInput] = useState<string | number>("");
+  const [note, setNote] = useState("");
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -33,7 +33,12 @@ export function StockAdjustmentForm({
     setError(null);
 
     try {
-      const validated = manualAdjustmentSchema.parse(formData);
+      const payload = {
+        quantityChange: quantityInput === "" ? 0 : Number(quantityInput),
+        note,
+      };
+
+      const validated = manualAdjustmentSchema.parse(payload);
       const result = await adjustComponentStock(
         componentId,
         validated,
@@ -53,62 +58,62 @@ export function StockAdjustmentForm({
     }
   }
 
-  const newStock = currentStock + formData.quantityChange;
+  const numericQuantity = quantityInput === "" ? 0 : Number(quantityInput);
+  const newStock = currentStock + numericQuantity;
 
   return (
-    <form onSubmit={onSubmit} className="space-y-4">
+    <form onSubmit={onSubmit} className="space-y-5">
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded p-3 text-red-800 text-sm">
+        <div className="bg-rose-50 border border-rose-100 rounded-2xl p-4 text-rose-700 text-xs font-semibold animate-fadeIn">
           {error}
         </div>
       )}
 
-      <div className="bg-blue-50 border border-blue-200 rounded p-3 text-blue-800 text-sm">
-        <p className="font-medium">{componentName}</p>
-        <p className="mt-1">Current Stock: {currentStock}</p>
+      <div className="bg-violet-50/50 border border-violet-100/50 rounded-2xl p-4 text-slate-800 text-xs sm:text-sm">
+        <p className="font-bold text-slate-900">{componentName}</p>
+        <p className="mt-1 text-slate-500 font-medium">Current Stock: <span className="text-violet-600 font-semibold">{currentStock}</span></p>
       </div>
 
-      <div>
-        <label className="block text-sm font-medium text-slate-700 mb-1">
+      <div className="space-y-1">
+        <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider">
           Quantity Change (+ or -) *
         </label>
         <input
           type="number"
-          required
           step="1"
-          value={formData.quantityChange}
-          onChange={(e) =>
-            setFormData({
-              ...formData,
-              quantityChange: parseInt(e.target.value) || 0,
-            })
-          }
-          className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          placeholder="e.g., +50 or -10"
+          required
+          value={quantityInput}
+          onChange={(e) => {
+            const val = e.target.value;
+            // Allow typing negative/positive signs
+            setQuantityInput(val === "" ? "" : parseInt(val) || 0);
+          }}
+          className="w-full px-4 py-3 bg-white border border-gray-200 rounded-2xl text-gray-800 placeholder-gray-400 focus:ring-4 focus:ring-violet-500/10 focus:border-violet-500 transition-all outline-none text-sm"
+          placeholder="e.g., 50 or -10"
         />
       </div>
 
       {newStock < 0 && (
-        <div className="bg-red-50 border border-red-200 rounded p-3 text-red-800 text-sm">
+        <div className="bg-rose-50 border border-rose-100 rounded-2xl p-3.5 text-rose-700 text-xs font-semibold">
           ⚠️ Warning: This will result in negative stock ({newStock})
         </div>
       )}
 
-      {newStock >= 0 && (
-        <div className="bg-green-50 border border-green-200 rounded p-3 text-green-800 text-sm">
+      {quantityInput !== "" && newStock >= 0 && (
+        <div className="bg-emerald-50 border border-emerald-100 rounded-2xl p-3.5 text-emerald-700 text-xs font-semibold">
           ✓ New stock will be: {newStock}
         </div>
       )}
 
-      <div>
-        <label className="block text-sm font-medium text-slate-700 mb-1">
+      <div className="space-y-1">
+        <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider">
           Reason/Note *
         </label>
         <textarea
           required
-          value={formData.note}
-          onChange={(e) => setFormData({ ...formData, note: e.target.value })}
-          className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          value={note}
+          onChange={(e) => setNote(e.target.value)}
+          className="w-full px-4 py-3 bg-white border border-gray-200 rounded-2xl text-gray-800 placeholder-gray-400 focus:ring-4 focus:ring-violet-500/10 focus:border-violet-500 transition-all outline-none text-sm"
           rows={3}
           placeholder="Why is this adjustment being made?"
         />
@@ -119,7 +124,7 @@ export function StockAdjustmentForm({
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 border border-slate-300 rounded-lg text-slate-700 hover:bg-slate-50"
+            className="px-5 py-2.5 border border-gray-200 rounded-2xl text-gray-600 hover:bg-gray-50 text-sm font-semibold transition-all"
           >
             Cancel
           </button>
@@ -127,7 +132,7 @@ export function StockAdjustmentForm({
         <button
           type="submit"
           disabled={loading || newStock < 0}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-slate-400"
+          className="px-5 py-2.5 bg-gradient-to-r from-violet-600 to-indigo-600 text-white rounded-2xl hover:brightness-105 disabled:opacity-50 text-sm font-semibold transition-all shadow-md shadow-violet-500/10"
         >
           {loading ? "Adjusting..." : "Confirm Adjustment"}
         </button>

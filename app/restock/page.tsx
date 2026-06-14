@@ -16,7 +16,7 @@ export default function RestockPage() {
 
   // Quick Restock Form State
   const [quickComponentId, setQuickComponentId] = useState("");
-  const [quickQuantity, setQuickQuantity] = useState<number>(0);
+  const [quickQuantity, setQuickQuantity] = useState<string | number>("");
 
   useEffect(() => {
     loadComponents();
@@ -62,14 +62,15 @@ export default function RestockPage() {
 
   async function handleQuickRestock(e: React.FormEvent) {
     e.preventDefault();
-    if (!quickComponentId || quickQuantity <= 0) return;
+    const quantity = quickQuantity === "" ? 0 : Number(quickQuantity);
+    if (!quickComponentId || quantity <= 0) return;
 
     setRestockingId(quickComponentId);
     setMessage(null);
 
     const result = await recordStockIn(
       quickComponentId,
-      quickQuantity,
+      quantity,
       "Restock",
       getLoggedInUser() || undefined
     );
@@ -77,7 +78,7 @@ export default function RestockPage() {
     if (result.success) {
       setMessage({ type: "success", text: "Stock added successfully" });
       setQuickComponentId("");
-      setQuickQuantity(0);
+      setQuickQuantity("");
       loadComponents();
     } else {
       setMessage({ type: "error", text: result.error || "Failed to restock" });
@@ -152,27 +153,30 @@ export default function RestockPage() {
               type="number"
               min="1"
               step="1"
-              value={quickQuantity || ""}
+              value={quickQuantity}
               placeholder="e.g. 50"
-              onChange={(e) => setQuickQuantity(parseInt(e.target.value) || 0)}
+              onChange={(e) => {
+                const val = e.target.value;
+                setQuickQuantity(val === "" ? "" : parseInt(val) || 0);
+              }}
               required
-              className="w-full px-3 py-2 border border-gray-200 rounded-xl text-gray-800 bg-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-400 outline-none transition-all text-sm"
+              className="w-full px-4 py-3 bg-white border border-gray-200 rounded-2xl text-gray-800 focus:ring-4 focus:ring-violet-500/10 focus:border-violet-500 outline-none transition-all text-sm"
             />
           </div>
 
           <div>
             <button
               type="submit"
-              disabled={restockingId !== null || !quickComponentId || quickQuantity <= 0}
-              className="w-full px-4 py-2.5 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 disabled:bg-gray-200 disabled:text-gray-400 text-sm font-semibold transition-colors shadow-sm shadow-emerald-600/10"
+              disabled={restockingId !== null || !quickComponentId || (quickQuantity === "" ? 0 : Number(quickQuantity)) <= 0}
+              className="w-full px-4 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl disabled:opacity-50 text-xs sm:text-sm font-semibold transition-all shadow-md shadow-emerald-500/10 active:scale-[0.995]"
             >
               {restockingId === quickComponentId ? "Adding..." : "Add Stock"}
             </button>
           </div>
         </form>
-        {selectedQuickComponent && quickQuantity > 0 && (
-          <div className="mt-3 text-xs text-emerald-700 font-medium bg-emerald-50/50 px-3 py-1.5 rounded-lg border border-emerald-100/50 inline-block">
-            Current: {selectedQuickComponent.currentStock} {selectedQuickComponent.unit} → New Stock: {selectedQuickComponent.currentStock + quickQuantity} {selectedQuickComponent.unit}
+        {selectedQuickComponent && (quickQuantity === "" ? 0 : Number(quickQuantity)) > 0 && (
+          <div className="mt-3 text-xs text-emerald-700 font-semibold bg-emerald-50 px-3 py-2 rounded-xl border border-emerald-100 inline-block animate-fadeIn">
+            Current: {selectedQuickComponent.currentStock} {selectedQuickComponent.unit} → New Stock: {selectedQuickComponent.currentStock + (quickQuantity === "" ? 0 : Number(quickQuantity))} {selectedQuickComponent.unit}
           </div>
         )}
       </div>

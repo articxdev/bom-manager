@@ -3,8 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createComponent, updateComponent } from "@/app/actions/components";
-import { componentSchema, ComponentInput } from "@/lib/schemas";
-import { X } from "lucide-react";
+import { componentSchema } from "@/lib/schemas";
 import { getLoggedInUser } from "@/lib/auth";
 
 interface ComponentFormProps {
@@ -16,12 +15,14 @@ export function ComponentForm({ component, onClose }: ComponentFormProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [formData, setFormData] = useState<ComponentInput>({
+  
+  // Use string or number for inputs to allow empty state ("")
+  const [formData, setFormData] = useState({
     name: component?.name || "",
     category: component?.category || "",
     unit: component?.unit || "pcs",
-    currentStock: component?.currentStock || 0,
-    reorderThreshold: component?.reorderThreshold || 0,
+    currentStock: component !== undefined ? component.currentStock : "",
+    reorderThreshold: component !== undefined ? component.reorderThreshold : "",
   });
 
   async function onSubmit(e: React.FormEvent) {
@@ -30,7 +31,14 @@ export function ComponentForm({ component, onClose }: ComponentFormProps) {
     setError(null);
 
     try {
-      const validated = componentSchema.parse(formData);
+      // Cast empty fields to 0 or numeric representation
+      const payload = {
+        ...formData,
+        currentStock: formData.currentStock === "" ? 0 : Number(formData.currentStock),
+        reorderThreshold: formData.reorderThreshold === "" ? 0 : Number(formData.reorderThreshold),
+      };
+
+      const validated = componentSchema.parse(payload);
       const user = getLoggedInUser() || undefined;
       const result = component
         ? await updateComponent(component.id, { ...validated, enteredBy: user })
@@ -50,15 +58,15 @@ export function ComponentForm({ component, onClose }: ComponentFormProps) {
   }
 
   return (
-    <form onSubmit={onSubmit} className="space-y-4">
+    <form onSubmit={onSubmit} className="space-y-5">
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded p-3 text-red-800 text-sm">
+        <div className="bg-rose-50 border border-rose-100 rounded-2xl p-4 text-rose-700 text-xs font-semibold animate-fadeIn">
           {error}
         </div>
       )}
 
-      <div>
-        <label className="block text-sm font-medium text-slate-700 mb-1">
+      <div className="space-y-1">
+        <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider">
           Component Name *
         </label>
         <input
@@ -66,14 +74,14 @@ export function ComponentForm({ component, onClose }: ComponentFormProps) {
           required
           value={formData.name}
           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-          className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="w-full px-4 py-3 bg-white border border-gray-200 rounded-2xl text-gray-800 placeholder-gray-400 focus:ring-4 focus:ring-violet-500/10 focus:border-violet-500 transition-all outline-none text-sm"
           placeholder="e.g., 10K Ohm Resistor"
         />
       </div>
 
       <div className="grid grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">
+        <div className="space-y-1">
+          <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider">
             Category *
           </label>
           <input
@@ -81,13 +89,13 @@ export function ComponentForm({ component, onClose }: ComponentFormProps) {
             required
             value={formData.category}
             onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-4 py-3 bg-white border border-gray-200 rounded-2xl text-gray-800 placeholder-gray-400 focus:ring-4 focus:ring-violet-500/10 focus:border-violet-500 transition-all outline-none text-sm"
             placeholder="e.g., Electronics"
           />
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">
+        <div className="space-y-1">
+          <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider">
             Unit *
           </label>
           <input
@@ -95,48 +103,52 @@ export function ComponentForm({ component, onClose }: ComponentFormProps) {
             required
             value={formData.unit}
             onChange={(e) => setFormData({ ...formData, unit: e.target.value })}
-            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            placeholder="pcs, meter, gram, etc"
+            className="w-full px-4 py-3 bg-white border border-gray-200 rounded-2xl text-gray-800 placeholder-gray-400 focus:ring-4 focus:ring-violet-500/10 focus:border-violet-500 transition-all outline-none text-sm"
+            placeholder="e.g., pcs"
           />
         </div>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">
+        <div className="space-y-1">
+          <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider">
             Current Stock *
           </label>
           <input
             type="number"
-            required
             step="1"
+            min="0"
             value={formData.currentStock}
-            onChange={(e) =>
+            onChange={(e) => {
+              const val = e.target.value;
               setFormData({
                 ...formData,
-                currentStock: parseInt(e.target.value) || 0,
-              })
-            }
-            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                currentStock: val === "" ? "" : parseInt(val) || 0,
+              });
+            }}
+            placeholder="0"
+            className="w-full px-4 py-3 bg-white border border-gray-200 rounded-2xl text-gray-800 placeholder-gray-400 focus:ring-4 focus:ring-violet-500/10 focus:border-violet-500 transition-all outline-none text-sm"
           />
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">
+        <div className="space-y-1">
+          <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider">
             Reorder Threshold *
           </label>
           <input
             type="number"
-            required
             step="1"
+            min="0"
             value={formData.reorderThreshold}
-            onChange={(e) =>
+            onChange={(e) => {
+              const val = e.target.value;
               setFormData({
                 ...formData,
-                reorderThreshold: parseInt(e.target.value) || 0,
-              })
-            }
-            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                reorderThreshold: val === "" ? "" : parseInt(val) || 0,
+              });
+            }}
+            placeholder="0"
+            className="w-full px-4 py-3 bg-white border border-gray-200 rounded-2xl text-gray-800 placeholder-gray-400 focus:ring-4 focus:ring-violet-500/10 focus:border-violet-500 transition-all outline-none text-sm"
           />
         </div>
       </div>
@@ -146,7 +158,7 @@ export function ComponentForm({ component, onClose }: ComponentFormProps) {
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 border border-slate-300 rounded-lg text-slate-700 hover:bg-slate-50"
+            className="px-5 py-2.5 border border-gray-200 rounded-2xl text-gray-600 hover:bg-gray-50 text-sm font-semibold transition-all"
           >
             Cancel
           </button>
@@ -154,9 +166,9 @@ export function ComponentForm({ component, onClose }: ComponentFormProps) {
         <button
           type="submit"
           disabled={loading}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-slate-400"
+          className="px-5 py-2.5 bg-gradient-to-r from-violet-600 to-indigo-600 text-white rounded-2xl hover:brightness-105 disabled:opacity-50 text-sm font-semibold transition-all shadow-md shadow-violet-500/10"
         >
-          {loading ? "Saving..." : component ? "Update" : "Create"}
+          {loading ? "Saving..." : component ? "Update Component" : "Create Component"}
         </button>
       </div>
     </form>

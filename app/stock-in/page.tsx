@@ -10,7 +10,7 @@ export default function StockInPage() {
   const router = useRouter();
   const [components, setComponents] = useState<any[]>([]);
   const [selectedComponentId, setSelectedComponentId] = useState("");
-  const [quantity, setQuantity] = useState(0);
+  const [quantityInput, setQuantityInput] = useState<string | number>("");
   const [note, setNote] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -27,8 +27,10 @@ export default function StockInPage() {
   }
 
   async function handleStockIn() {
+    const quantity = quantityInput === "" ? 0 : Number(quantityInput);
+
     if (!selectedComponentId || quantity <= 0) {
-      setError("Please select component and enter quantity");
+      setError("Please select component and enter quantity greater than 0");
       return;
     }
 
@@ -52,30 +54,31 @@ export default function StockInPage() {
   }
 
   const component = components.find((c) => c.id === selectedComponentId);
-  const newStock = component ? component.currentStock + quantity : 0;
+  const numericQuantity = quantityInput === "" ? 0 : Number(quantityInput);
+  const newStock = component ? component.currentStock + numericQuantity : 0;
 
   return (
-    <div className="p-6 md:p-8 max-w-7xl mx-auto">
-      <div className="mb-8">
+    <div className="p-6 md:p-8 max-w-7xl mx-auto space-y-6">
+      <div>
         <h1 className="text-3xl font-extrabold tracking-tight text-gray-900">Receive Stock</h1>
         <p className="text-gray-500 mt-1 text-sm">Add incoming inventory to your stock</p>
       </div>
 
-      <div className="max-w-lg bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-5">
+      <div className="max-w-lg bg-white rounded-3xl border border-gray-200/60 shadow-sm p-6 sm:p-8 space-y-5">
         {error && (
-          <div className="bg-rose-50 border border-rose-200 rounded-xl p-4 text-rose-700 text-sm font-medium">
+          <div className="bg-rose-50 border border-rose-100 rounded-2xl p-4 text-rose-700 text-xs font-semibold animate-fadeIn">
             {error}
           </div>
         )}
 
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
+        <div className="space-y-1">
+          <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider">
             Component *
           </label>
           <select
             value={selectedComponentId}
             onChange={(e) => setSelectedComponentId(e.target.value)}
-            className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-gray-800 bg-white focus:ring-2 focus:ring-violet-500/20 focus:border-violet-400 outline-none transition-all text-sm"
+            className="w-full px-4 py-3 bg-white border border-gray-200 rounded-2xl text-gray-800 focus:ring-4 focus:ring-violet-500/10 focus:border-violet-500 outline-none transition-all text-sm cursor-pointer"
           >
             <option value="">-- Select Component --</option>
             {components.map((c) => (
@@ -87,33 +90,37 @@ export default function StockInPage() {
         </div>
 
         {component && (
-          <div className="bg-sky-50 border border-sky-200 rounded-xl p-4 text-sm text-sky-700 font-medium">
-            Current: <span className="font-bold">{component.currentStock}</span> → After: <span className="font-bold text-emerald-700">{newStock}</span>
+          <div className="bg-violet-50/50 border border-violet-100/50 rounded-2xl p-4 text-xs sm:text-sm text-slate-800 font-medium">
+            Current: <span className="font-bold text-slate-700">{component.currentStock}</span> → After: <span className="font-bold text-emerald-600">{newStock}</span>
           </div>
         )}
 
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
+        <div className="space-y-1">
+          <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider">
             Quantity Received *
           </label>
           <input
             type="number"
             min="1"
             step="1"
-            value={quantity}
-            onChange={(e) => setQuantity(parseInt(e.target.value) || 0)}
-            className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-gray-800 bg-white focus:ring-2 focus:ring-violet-500/20 focus:border-violet-400 outline-none transition-all text-sm"
+            value={quantityInput}
+            onChange={(e) => {
+              const val = e.target.value;
+              setQuantityInput(val === "" ? "" : parseInt(val) || 0);
+            }}
+            placeholder="Enter quantity"
+            className="w-full px-4 py-3 bg-white border border-gray-200 rounded-2xl text-gray-800 placeholder-gray-400 focus:ring-4 focus:ring-violet-500/10 focus:border-violet-500 transition-all outline-none text-sm"
           />
         </div>
 
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
+        <div className="space-y-1">
+          <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider">
             Note (optional)
           </label>
           <textarea
             value={note}
             onChange={(e) => setNote(e.target.value)}
-            className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-gray-800 bg-white focus:ring-2 focus:ring-violet-500/20 focus:border-violet-400 outline-none transition-all text-sm"
+            className="w-full px-4 py-3 bg-white border border-gray-200 rounded-2xl text-gray-800 placeholder-gray-400 focus:ring-4 focus:ring-violet-500/10 focus:border-violet-500 transition-all outline-none text-sm"
             rows={2}
             placeholder="e.g., Purchase order #1234"
           />
@@ -121,8 +128,8 @@ export default function StockInPage() {
 
         <button
           onClick={handleStockIn}
-          disabled={loading || !selectedComponentId || quantity <= 0}
-          className="w-full px-4 py-3 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 disabled:bg-gray-300 disabled:text-gray-500 font-semibold text-sm shadow-sm shadow-emerald-600/20 transition-colors"
+          disabled={loading || !selectedComponentId || numericQuantity <= 0}
+          className="w-full px-4 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl disabled:opacity-50 font-bold text-xs sm:text-sm shadow-md shadow-emerald-600/10 transition-all active:scale-[0.995]"
         >
           {loading ? "Processing..." : "Confirm Stock In"}
         </button>

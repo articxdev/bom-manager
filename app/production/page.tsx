@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter, useParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { getProduct } from "@/app/actions/products";
 import { recordProduction } from "@/app/actions/transactions";
 import { formatNumber } from "@/lib/format";
@@ -12,7 +12,9 @@ export default function ProductionPage() {
   const router = useRouter();
   const [products, setProducts] = useState<any[]>([]);
   const [selectedProductId, setSelectedProductId] = useState("");
-  const [quantity, setQuantity] = useState(1);
+  
+  // Use state variables that support empty strings for editing comfort
+  const [quantityInput, setQuantityInput] = useState<string | number>(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [insufficientItems, setInsufficientItems] = useState<any[]>([]);
@@ -29,7 +31,7 @@ export default function ProductionPage() {
     }
   }
 
-  async function loadProductPreview(productId: string) {
+  async function loadProductPreview(productId: string, qty: number) {
     const result = await getProduct(productId);
     if (result.success && result.data) {
       const product = result.data;
@@ -38,18 +40,20 @@ export default function ProductionPage() {
           component: item.component.name,
           unit: item.component.unit,
           perUnit: item.quantityPerUnit,
-          needed: item.quantityPerUnit * quantity,
+          needed: item.quantityPerUnit * qty,
           current: item.component.currentStock,
           sufficient:
-            item.component.currentStock >= item.quantityPerUnit * quantity,
+            item.component.currentStock >= item.quantityPerUnit * qty,
         }))
       );
     }
   }
 
   async function handleProduction() {
+    const quantity = quantityInput === "" ? 1 : Number(quantityInput);
+
     if (!selectedProductId || quantity < 1) {
-      setError("Please select a product and enter a quantity");
+      setError("Please select a product and enter a quantity of at least 1");
       return;
     }
 
@@ -77,26 +81,32 @@ export default function ProductionPage() {
 
   useEffect(() => {
     if (selectedProductId) {
-      loadProductPreview(selectedProductId);
+      const qty = quantityInput === "" ? 1 : Number(quantityInput);
+      loadProductPreview(selectedProductId, qty);
+    } else {
+      setPreview(null);
     }
-  }, [selectedProductId, quantity]);
+  }, [selectedProductId, quantityInput]);
 
   return (
-    <div className="p-6">
-      <h1 className="text-3xl font-bold text-slate-900 mb-8">Production Entry</h1>
+    <div className="p-6 md:p-8 max-w-7xl mx-auto space-y-6">
+      <div>
+        <h1 className="text-3xl font-extrabold tracking-tight text-gray-900">Production Entry</h1>
+        <p className="text-gray-500 mt-1 text-sm">Log manufactured products and automatically deduct BOM items</p>
+      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Form */}
+        {/* Form Container */}
         <div className="lg:col-span-1">
-          <div className="bg-white rounded-lg shadow p-6 space-y-4">
+          <div className="bg-white rounded-3xl border border-gray-200/60 shadow-sm p-6 sm:p-8 space-y-5">
             {error && (
-              <div className="bg-red-50 border border-red-200 rounded p-3 text-red-800 text-sm">
+              <div className="bg-rose-50 border border-rose-100 rounded-2xl p-4 text-rose-700 text-xs font-semibold animate-fadeIn">
                 {error}
               </div>
             )}
 
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">
+            <div className="space-y-1">
+              <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider">
                 Select Product *
               </label>
               <select
@@ -105,7 +115,7 @@ export default function ProductionPage() {
                   setSelectedProductId(e.target.value);
                   setInsufficientItems([]);
                 }}
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg"
+                className="w-full px-4 py-3 bg-white border border-gray-200 rounded-2xl text-gray-800 focus:ring-4 focus:ring-violet-500/10 focus:border-violet-500 outline-none transition-all text-sm cursor-pointer"
               >
                 <option value="">-- Select Product --</option>
                 {products.map((p) => (
@@ -116,23 +126,30 @@ export default function ProductionPage() {
               </select>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">
+            <div className="space-y-1">
+              <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider">
                 Units to Produce *
               </label>
               <input
                 type="number"
                 min="1"
-                value={quantity}
-                onChange={(e) => setQuantity(parseInt(e.target.value) || 1)}
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg"
+                step="1"
+                value={quantityInput}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setQuantityInput(val === "" ? "" : parseInt(val) || 0);
+                }}
+                placeholder="1"
+                className="w-full px-4 py-3 bg-white border border-gray-200 rounded-2xl text-gray-800 placeholder-gray-400 focus:ring-4 focus:ring-violet-500/10 focus:border-violet-500 transition-all outline-none text-sm"
               />
             </div>
 
             {insufficientItems.length > 0 && (
-              <div className="bg-yellow-50 border border-yellow-200 rounded p-3">
-                <p className="text-sm font-medium text-yellow-900 mb-2">⚠️ Warning:</p>
-                <div className="space-y-1 text-xs text-yellow-800">
+              <div className="bg-amber-50 border border-amber-100 rounded-2xl p-4 space-y-2">
+                <p className="text-xs font-bold text-amber-800 uppercase tracking-wider flex items-center gap-1.5">
+                  <AlertTriangle size={14} /> Insufficient Stock Alert
+                </p>
+                <div className="space-y-1 text-xs text-amber-700">
                   {insufficientItems.map((item) => (
                     <p key={item.componentName}>
                       {item.componentName}: only {formatNumber(item.current)} available, need{" "}
@@ -140,7 +157,7 @@ export default function ProductionPage() {
                     </p>
                   ))}
                 </div>
-                <label className="flex items-center gap-2 mt-2">
+                <label className="flex items-center gap-2 pt-1 font-semibold text-amber-800 text-xs cursor-pointer">
                   <input
                     type="checkbox"
                     onChange={(e) => {
@@ -148,9 +165,9 @@ export default function ProductionPage() {
                         setInsufficientItems([]);
                       }
                     }}
-                    className="rounded"
+                    className="rounded border-amber-300 text-amber-600 focus:ring-amber-500 w-4 h-4"
                   />
-                  <span className="text-xs">Proceed anyway</span>
+                  <span>Force production anyway</span>
                 </label>
               </div>
             )}
@@ -158,44 +175,44 @@ export default function ProductionPage() {
             <button
               onClick={handleProduction}
               disabled={loading || !selectedProductId}
-              className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-slate-400"
+              className="w-full px-4 py-3.5 bg-gradient-to-r from-violet-600 to-indigo-600 text-white rounded-2xl hover:brightness-105 disabled:opacity-50 font-bold text-xs sm:text-sm shadow-md shadow-violet-500/10 transition-all active:scale-[0.995]"
             >
               {loading ? "Processing..." : "Record Production"}
             </button>
           </div>
         </div>
 
-        {/* Preview */}
+        {/* Preview Container */}
         {preview && (
-          <div className="lg:col-span-2">
-            <div className="bg-white rounded-lg shadow p-6">
-              <h2 className="text-xl font-bold text-slate-900 mb-4">BOM Preview</h2>
+          <div className="lg:col-span-2 animate-fadeIn">
+            <div className="bg-white rounded-3xl border border-gray-200/60 shadow-sm p-6 sm:p-8">
+              <h2 className="text-lg font-bold text-gray-900 mb-4">BOM Component Preview</h2>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-slate-200">
-                      <th className="text-left py-2 px-2">Component</th>
-                      <th className="text-center py-2 px-2">Per Unit</th>
-                      <th className="text-center py-2 px-2">Needed</th>
-                      <th className="text-center py-2 px-2">Current</th>
-                      <th className="text-center py-2 px-2">Status</th>
+                    <tr className="border-b border-gray-150 bg-gray-50/50">
+                      <th className="text-left py-3 px-4 font-semibold text-gray-500 text-xs uppercase tracking-wider">Component</th>
+                      <th className="text-center py-3 px-4 font-semibold text-gray-500 text-xs uppercase tracking-wider">Per Unit</th>
+                      <th className="text-center py-3 px-4 font-semibold text-gray-500 text-xs uppercase tracking-wider">Total Needed</th>
+                      <th className="text-center py-3 px-4 font-semibold text-gray-500 text-xs uppercase tracking-wider">Current Stock</th>
+                      <th className="text-center py-3 px-4 font-semibold text-gray-500 text-xs uppercase tracking-wider">Status</th>
                     </tr>
                   </thead>
-                  <tbody>
+                  <tbody className="divide-y divide-gray-100">
                     {preview.map((item: any, idx: number) => (
-                      <tr key={idx} className="border-b border-slate-100">
-                        <td className="py-2 px-2 font-medium">{item.component}</td>
-                        <td className="py-2 px-2 text-center">{formatNumber(item.perUnit)}</td>
-                        <td className="py-2 px-2 text-center font-semibold">
+                      <tr key={idx} className="hover:bg-gray-50/50 transition-colors">
+                        <td className="py-3 px-4 font-bold text-gray-800">{item.component}</td>
+                        <td className="py-3 px-4 text-center text-gray-600">{formatNumber(item.perUnit)}</td>
+                        <td className="py-3 px-4 text-center font-bold text-rose-600">
                           -{formatNumber(item.needed)}
                         </td>
-                        <td className="py-2 px-2 text-center">{formatNumber(item.current)}</td>
-                        <td className="py-2 px-2 text-center">
+                        <td className="py-3 px-4 text-center text-gray-500">{formatNumber(item.current)}</td>
+                        <td className="py-3 px-4 text-center">
                           {item.sufficient ? (
-                            <span className="text-green-600">✓</span>
+                            <span className="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">Sufficient</span>
                           ) : (
-                            <span className="text-red-600 flex items-center justify-center gap-1">
-                              <AlertTriangle size={14} />
+                            <span className="inline-flex items-center gap-1 text-xs font-semibold text-rose-600 bg-rose-50 px-2 py-0.5 rounded-full">
+                              <AlertTriangle size={10} /> Low
                             </span>
                           )}
                         </td>
