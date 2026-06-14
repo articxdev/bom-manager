@@ -1,0 +1,81 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Component {
+  id                String   @id @default(cuid())
+  name              String   @unique
+  category          String
+  unit              String   // e.g., "pcs", "meter", "gram"
+  currentStock      Float    @default(0)
+  reorderThreshold  Float    @default(0)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  bomItems      BOMItem[]
+  transactions  Transaction[]
+
+  @@index([category])
+  @@index([currentStock])
+}
+
+model Product {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  bomItems     BOMItem[]
+  transactions Transaction[]
+
+  @@index([name])
+}
+
+model BOMItem {
+  id              String   @id @default(cuid())
+  productId       String
+  componentId     String
+  quantityPerUnit Float
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  product   Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  component Component @relation(fields: [componentId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, componentId])
+  @@index([productId])
+  @@index([componentId])
+}
+
+model Transaction {
+  id                      String   @id @default(cuid())
+  componentId             String
+  type                    String   // PRODUCTION, DAMAGE, STOCK_IN, MANUAL_ADJUST, REVERSAL (SQLite doesn't support enums)
+  quantityChange          Float
+  resultingBalance        Float
+  productId               String?
+  productionQuantity      Float?         // units produced if PRODUCTION type
+  note                    String?
+  createdAt               DateTime @default(now())
+  reversedTransactionId   String?  @unique // self-relation for reversals (unique for one-to-one)
+
+  component              Component      @relation(fields: [componentId], references: [id], onDelete: Cascade)
+  product                Product?       @relation(fields: [productId], references: [id], onDelete: SetNull)
+  reversalTransaction    Transaction?   @relation("Reversal", fields: [reversedTransactionId], references: [id], onDelete: SetNull)
+  reversedByTransaction  Transaction?   @relation("Reversal")
+
+  @@index([componentId])
+  @@index([productId])
+  @@index([type])
+  @@index([createdAt])
+  @@index([reversedTransactionId])
+}
