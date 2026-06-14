@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { Sidebar } from "./components/Sidebar";
 import { AuthWrapper } from "./components/AuthWrapper";
+import { MainWrapper } from "./components/MainWrapper";
 
 export const metadata: Metadata = {
   title: "BOM Manager - Bill of Materials Management",
@@ -24,7 +25,7 @@ export default function RootLayout({
         <AuthWrapper>
           <div className="flex h-screen flex-col md:flex-row">
             <Sidebar />
-            <main className="flex-1 overflow-auto bg-[#f8fafc] pt-16 md:pt-0 md:ml-64">{children}</main>
+            <MainWrapper>{children}</MainWrapper>
           </div>
         </AuthWrapper>
       </body>
