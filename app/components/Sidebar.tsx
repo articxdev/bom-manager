@@ -27,6 +27,16 @@ export function Sidebar() {
     setLoggedInUser(localStorage.getItem(USER_KEY));
   }, []);
 
+  const getProfile = (user: string | null) => {
+    const u = user?.toLowerCase();
+    if (u === "harigovind") return { initials: "HG", role: "Administrator", gradient: "from-violet-500 to-purple-600" };
+    if (u === "rahul") return { initials: "RA", role: "Inventory Manager", gradient: "from-blue-500 to-indigo-600" };
+    if (u === "shilna") return { initials: "SH", role: "Production Lead", gradient: "from-emerald-500 to-teal-600" };
+    return { initials: "U", role: "User", gradient: "from-gray-500 to-slate-600" };
+  };
+
+  const profile = getProfile(loggedInUser);
+
   const links = [
     { href: "/", label: "Dashboard", icon: BarChart3, color: "text-violet-400" },
     { href: "/components", label: "Components", icon: Package, color: "text-sky-400" },
@@ -63,7 +73,7 @@ export function Sidebar() {
         </div>
 
         {/* Navigation */}
-        <nav className="space-y-1">
+        <nav className="space-y-1 h-[calc(100vh-270px)] overflow-y-auto pr-1">
           {links.map(({ href, label, icon: Icon, color }) => {
             const isActive = pathname === href;
             return (
@@ -84,28 +94,41 @@ export function Sidebar() {
           })}
         </nav>
 
-        {/* Footer */}
-        <div className="absolute bottom-5 left-5 right-5 border-t border-gray-100 pt-4 space-y-3">
+        {/* Footer with user profile card */}
+        <div className="absolute bottom-4 left-4 right-4 border-t border-gray-100 pt-4 space-y-3">
           {loggedInUser && (
-            <div className="text-xs text-gray-600 px-3 py-2 bg-violet-50 rounded-xl">
-              Logged in as <span className="font-semibold text-violet-700 capitalize">{formatUserName(loggedInUser)}</span>
+            <div className="flex items-center justify-between p-2.5 bg-gray-50 border border-gray-100 rounded-2xl">
+              <div className="flex items-center gap-3">
+                <div className={`w-9 h-9 rounded-xl bg-gradient-to-br ${profile.gradient} flex items-center justify-center font-bold text-xs text-white shadow-sm`}>
+                  {profile.initials}
+                </div>
+                <div className="min-w-0">
+                  <h4 className="text-xs font-bold text-gray-800 capitalize truncate">
+                    {formatUserName(loggedInUser)}
+                  </h4>
+                  <p className="text-[10px] text-gray-500 font-medium truncate">
+                    {profile.role}
+                  </p>
+                </div>
+              </div>
+              
+              <button
+                onClick={() => {
+                  localStorage.removeItem(AUTH_KEY);
+                  localStorage.removeItem(USER_KEY);
+                  window.location.reload();
+                }}
+                title="Lock Session"
+                className="w-8 h-8 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-gray-400 hover:text-rose-600 hover:border-rose-100 hover:bg-rose-50/30 transition-all cursor-pointer"
+              >
+                <LogOut size={14} />
+              </button>
             </div>
           )}
-          <div className="text-xs text-gray-500 px-1">
-            <p className="font-semibold text-gray-700">BOM Manager v1.0</p>
-            <p className="mt-1">Developed by <span className="text-violet-600 font-semibold">harigovind</span></p>
+          <div className="text-[10px] text-gray-400 px-2 flex justify-between items-center">
+            <span>BOM Manager v1.0</span>
+            <span>By harigovind</span>
           </div>
-          <button
-            onClick={() => {
-              localStorage.removeItem(AUTH_KEY);
-              localStorage.removeItem(USER_KEY);
-              window.location.reload();
-            }}
-            className="flex items-center gap-2 text-xs text-red-500 hover:text-red-600 transition-colors py-2 px-3 hover:bg-red-50 rounded-xl w-full text-left font-medium"
-          >
-            <LogOut size={14} />
-            Lock Session
-          </button>
         </div>
       </aside>
 
