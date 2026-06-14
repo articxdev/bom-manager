@@ -11,12 +11,24 @@ interface ComponentFormProps {
   onClose?: () => void;
 }
 
+// Helper function to capitalize the first letter of each word
+function capitalizeWords(str: string): string {
+  if (!str) return "";
+  return str
+    .trim()
+    .split(/\s+/)
+    .map((word) => {
+      if (!word) return "";
+      return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+    })
+    .join(" ");
+}
+
 export function ComponentForm({ component, onClose }: ComponentFormProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
-  // Use string or number for inputs to allow empty state ("")
   const [formData, setFormData] = useState({
     name: component?.name || "",
     category: component?.category || "",
@@ -31,9 +43,10 @@ export function ComponentForm({ component, onClose }: ComponentFormProps) {
     setError(null);
 
     try {
-      // Cast empty fields to 0 or numeric representation
       const payload = {
         ...formData,
+        name: capitalizeWords(formData.name),
+        category: capitalizeWords(formData.category),
         currentStock: formData.currentStock === "" ? 0 : Number(formData.currentStock),
         reorderThreshold: formData.reorderThreshold === "" ? 0 : Number(formData.reorderThreshold),
       };
@@ -74,6 +87,7 @@ export function ComponentForm({ component, onClose }: ComponentFormProps) {
           required
           value={formData.name}
           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+          onBlur={(e) => setFormData({ ...formData, name: capitalizeWords(e.target.value) })}
           className="w-full px-4 py-3 bg-white border border-gray-200 rounded-2xl text-gray-800 placeholder-gray-400 focus:ring-4 focus:ring-violet-500/10 focus:border-violet-500 transition-all outline-none text-sm"
           placeholder="e.g., 10K Ohm Resistor"
         />
@@ -89,6 +103,7 @@ export function ComponentForm({ component, onClose }: ComponentFormProps) {
             required
             value={formData.category}
             onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+            onBlur={(e) => setFormData({ ...formData, category: capitalizeWords(e.target.value) })}
             className="w-full px-4 py-3 bg-white border border-gray-200 rounded-2xl text-gray-800 placeholder-gray-400 focus:ring-4 focus:ring-violet-500/10 focus:border-violet-500 transition-all outline-none text-sm"
             placeholder="e.g., Electronics"
           />

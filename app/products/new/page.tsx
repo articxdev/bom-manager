@@ -7,6 +7,19 @@ import { getComponents } from "@/app/actions/components";
 import { getLoggedInUser } from "@/lib/auth";
 import { ChevronLeft } from "lucide-react";
 
+// Helper function to capitalize the first letter of each word
+function capitalizeWords(str: string): string {
+  if (!str) return "";
+  return str
+    .trim()
+    .split(/\s+/)
+    .map((word) => {
+      if (!word) return "";
+      return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+    })
+    .join(" ");
+}
+
 export default function NewProductPage() {
   const router = useRouter();
   const [name, setName] = useState("");
@@ -61,7 +74,7 @@ export default function NewProductPage() {
     }
 
     const result = await createProduct(
-      { name, description },
+      { name: capitalizeWords(name), description },
       formattedBOM,
       getLoggedInUser() || undefined
     );
@@ -107,6 +120,7 @@ export default function NewProductPage() {
               required
               value={name}
               onChange={(e) => setName(e.target.value)}
+              onBlur={(e) => setName(capitalizeWords(e.target.value))}
               className="w-full px-4 py-3 bg-white border border-gray-200 rounded-2xl text-gray-800 focus:ring-4 focus:ring-violet-500/10 focus:border-violet-500 outline-none transition-all text-sm"
               placeholder="e.g. Smart Hub Model-S"
             />
