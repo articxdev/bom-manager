@@ -54,62 +54,74 @@ export default function Dashboard() {
   if (!data) return <EmptyState title="No Data" description="Failed to load dashboard data" />;
 
   return (
-    <div className="p-6">
-      <h1 className="text-3xl font-bold text-slate-900 mb-8">Dashboard</h1>
+    <div className="p-6 md:p-8 max-w-7xl mx-auto space-y-8">
+      <div>
+        <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">Dashboard</h1>
+        <p className="text-slate-500 mt-1">Real-time factory stock metrics and tracking</p>
+      </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-        <div className="bg-white rounded-lg shadow p-6 border-l-4 border-blue-500">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-slate-600 text-sm font-medium">Total Components</p>
-              <p className="text-3xl font-bold text-slate-900 mt-2">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* Total Components Card */}
+        <div className="bg-gradient-to-br from-blue-50/80 via-white to-white border border-slate-200/80 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all hover:scale-[1.01] duration-300 flex flex-col justify-between">
+          <div className="flex items-start justify-between">
+            <div className="space-y-1">
+              <p className="text-slate-500 text-xs font-semibold uppercase tracking-wider">Total Components</p>
+              <p className="text-3xl font-extrabold text-slate-900 mt-2">
                 {formatNumber(data.totalComponents, 0)}
               </p>
             </div>
-            <Package className="w-12 h-12 text-blue-200" />
+            <div className="p-3 bg-blue-500/10 rounded-xl text-blue-600">
+              <Package className="w-6 h-6" />
+            </div>
           </div>
           <Link
             href="/components"
-            className="text-blue-600 text-sm font-medium mt-4 inline-block hover:underline"
+            className="text-blue-600 text-xs font-semibold mt-6 flex items-center gap-1 hover:gap-2 transition-all"
           >
-            View Components →
+            View Inventory Details <span className="font-mono">→</span>
           </Link>
         </div>
 
-        <div className="bg-white rounded-lg shadow p-6 border-l-4 border-green-500">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-slate-600 text-sm font-medium">Total Products</p>
-              <p className="text-3xl font-bold text-slate-900 mt-2">
+        {/* Total Products Card */}
+        <div className="bg-gradient-to-br from-emerald-50/80 via-white to-white border border-slate-200/80 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all hover:scale-[1.01] duration-300 flex flex-col justify-between">
+          <div className="flex items-start justify-between">
+            <div className="space-y-1">
+              <p className="text-slate-500 text-xs font-semibold uppercase tracking-wider">Total Products</p>
+              <p className="text-3xl font-extrabold text-slate-900 mt-2">
                 {formatNumber(data.totalProducts, 0)}
               </p>
             </div>
-            <TrendingUp className="w-12 h-12 text-green-200" />
+            <div className="p-3 bg-emerald-500/10 rounded-xl text-emerald-600">
+              <TrendingUp className="w-6 h-6" />
+            </div>
           </div>
           <Link
             href="/products"
-            className="text-green-600 text-sm font-medium mt-4 inline-block hover:underline"
+            className="text-emerald-600 text-xs font-semibold mt-6 flex items-center gap-1 hover:gap-2 transition-all"
           >
-            View Products →
+            Manage Catalog & BOMs <span className="font-mono">→</span>
           </Link>
         </div>
 
-        <div className="bg-white rounded-lg shadow p-6 border-l-4 border-red-500">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-slate-600 text-sm font-medium">Low Stock Items</p>
-              <p className="text-3xl font-bold text-slate-900 mt-2">
+        {/* Low Stock Items Card */}
+        <div className="bg-gradient-to-br from-rose-50/80 via-white to-white border border-slate-200/80 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all hover:scale-[1.01] duration-300 flex flex-col justify-between">
+          <div className="flex items-start justify-between">
+            <div className="space-y-1">
+              <p className="text-slate-500 text-xs font-semibold uppercase tracking-wider">Low Stock Items</p>
+              <p className="text-3xl font-extrabold text-slate-900 mt-2">
                 {formatNumber(data.lowStockCount, 0)}
               </p>
             </div>
-            <AlertTriangle className="w-12 h-12 text-red-200" />
+            <div className="p-3 bg-rose-500/10 rounded-xl text-rose-600">
+              <AlertTriangle className="w-6 h-6" />
+            </div>
           </div>
           <Link
             href="/components"
-            className="text-red-600 text-sm font-medium mt-4 inline-block hover:underline"
+            className="text-rose-600 text-xs font-semibold mt-6 flex items-center gap-1 hover:gap-2 transition-all"
           >
-            Reorder Now →
+            Review Reorders <span className="font-mono">→</span>
           </Link>
         </div>
       </div>
@@ -117,73 +129,75 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Low Stock Alert */}
         <div className="lg:col-span-1">
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
-              <AlertTriangle className="w-5 h-5 text-red-500" />
+          <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 space-y-4">
+            <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+              <AlertTriangle className="w-5 h-5 text-rose-500" />
               Low Stock Alert
             </h2>
             {data.lowStockComponents.length > 0 ? (
-              <div className="space-y-3">
+              <div className="divide-y divide-slate-100">
                 {data.lowStockComponents.slice(0, 5).map((component) => (
-                  <div key={component.id} className="border-l-2 border-red-500 pl-3 py-1">
-                    <p className="font-medium text-sm text-slate-900">{component.name}</p>
-                    <p className="text-xs text-slate-600 mt-1">
-                      Stock: {formatNumber(component.currentStock)} / Threshold:{" "}
-                      {formatNumber(component.reorderThreshold)}
-                    </p>
+                  <div key={component.id} className="py-3 first:pt-0 last:pb-0 flex justify-between items-center">
+                    <div>
+                      <p className="font-semibold text-sm text-slate-800">{component.name}</p>
+                      <p className="text-xs text-slate-400 mt-0.5">Threshold: {formatNumber(component.reorderThreshold)}</p>
+                    </div>
+                    <span className="text-xs font-bold text-red-600 bg-red-50 px-2 py-1 rounded-full">
+                      {formatNumber(component.currentStock)} left
+                    </span>
                   </div>
                 ))}
               </div>
             ) : (
-              <p className="text-slate-600 text-sm">All components are well stocked ✓</p>
+              <p className="text-slate-500 text-sm py-4">All components are well stocked ✓</p>
             )}
           </div>
         </div>
 
         {/* Recent Activity */}
         <div className="lg:col-span-2">
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
+          <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 space-y-4">
+            <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
               <Activity className="w-5 h-5 text-blue-500" />
               Recent Activity
             </h2>
             {data.recentTransactions.length > 0 ? (
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
+              <div className="overflow-x-auto -mx-6">
+                <table className="w-full text-sm min-w-[500px]">
                   <thead>
-                    <tr className="border-b border-slate-200">
-                      <th className="text-left py-2 px-2 font-semibold text-slate-600">Date</th>
-                      <th className="text-left py-2 px-2 font-semibold text-slate-600">Component</th>
-                      <th className="text-left py-2 px-2 font-semibold text-slate-600">Type</th>
-                      <th className="text-right py-2 px-2 font-semibold text-slate-600">Change</th>
-                      <th className="text-right py-2 px-2 font-semibold text-slate-600">Balance</th>
+                    <tr className="border-b border-slate-150 bg-slate-50/50">
+                      <th className="text-left py-3 px-6 font-semibold text-slate-500 text-xs uppercase tracking-wider">Date</th>
+                      <th className="text-left py-3 px-6 font-semibold text-slate-500 text-xs uppercase tracking-wider">Component</th>
+                      <th className="text-left py-3 px-6 font-semibold text-slate-500 text-xs uppercase tracking-wider">Type</th>
+                      <th className="text-right py-3 px-6 font-semibold text-slate-500 text-xs uppercase tracking-wider">Change</th>
+                      <th className="text-right py-3 px-6 font-semibold text-slate-500 text-xs uppercase tracking-wider">Balance</th>
                     </tr>
                   </thead>
-                  <tbody>
+                  <tbody className="divide-y divide-slate-100">
                     {data.recentTransactions.slice(0, 10).map((tx) => (
-                      <tr key={tx.id} className="border-b border-slate-100 hover:bg-slate-50">
-                        <td className="py-3 px-2 text-slate-600">
+                      <tr key={tx.id} className="hover:bg-slate-50/30 transition-colors">
+                        <td className="py-3 px-6 text-slate-500 text-xs">
                           {formatDate(tx.createdAt)}
                         </td>
-                        <td className="py-3 px-2 font-medium text-slate-900">
+                        <td className="py-3 px-6 font-medium text-slate-900">
                           {tx.component.name}
                         </td>
-                        <td className="py-3 px-2">
+                        <td className="py-3 px-6">
                           <span
-                            className={`px-2 py-1 rounded text-xs font-medium ${
+                            className={`px-2.5 py-0.5 rounded-full text-xs font-semibold ${
                               tx.type === "STOCK_IN"
-                                ? "bg-green-100 text-green-800"
+                                ? "bg-green-50 text-green-700"
                                 : tx.type === "PRODUCTION"
-                                  ? "bg-blue-100 text-blue-800"
+                                  ? "bg-blue-50 text-blue-700"
                                   : tx.type === "DAMAGE"
-                                    ? "bg-red-100 text-red-800"
-                                    : "bg-slate-100 text-slate-800"
+                                    ? "bg-red-50 text-red-700"
+                                    : "bg-slate-50 text-slate-700"
                             }`}
                           >
                             {tx.type}
                           </span>
                         </td>
-                        <td className="py-3 px-2 text-right">
+                        <td className="py-3 px-6 text-right font-medium">
                           <span
                             className={
                               tx.quantityChange > 0 ? "text-green-600" : "text-red-600"
@@ -193,7 +207,7 @@ export default function Dashboard() {
                             {formatNumber(tx.quantityChange)}
                           </span>
                         </td>
-                        <td className="py-3 px-2 text-right font-medium text-slate-900">
+                        <td className="py-3 px-6 text-right font-semibold text-slate-900">
                           {formatNumber(tx.resultingBalance)}
                         </td>
                       </tr>
@@ -202,7 +216,7 @@ export default function Dashboard() {
                 </table>
               </div>
             ) : (
-              <p className="text-slate-600 text-sm">No transactions yet</p>
+              <p className="text-slate-500 text-sm py-4">No transactions recorded yet.</p>
             )}
           </div>
         </div>
