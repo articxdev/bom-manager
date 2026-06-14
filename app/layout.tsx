@@ -18,13 +18,13 @@ export default function RootLayout({
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
       </head>
-      <body className="h-full bg-[#f8fafc]" style={{ fontFamily: "'Inter', system-ui, sans-serif" }}>
+      <body className="h-full bg-[#f8fafc]" style={{ fontFamily: "'Plus Jakarta Sans', -apple-system, sans-serif" }}>
         <AuthWrapper>
-          <div className="flex h-screen">
+          <div className="flex h-screen flex-col md:flex-row">
             <Sidebar />
-            <main className="flex-1 overflow-auto md:ml-64 bg-[#f8fafc]">{children}</main>
+            <main className="flex-1 overflow-auto bg-[#f8fafc] pt-16 md:pt-0 md:ml-64">{children}</main>
           </div>
         </AuthWrapper>
       </body>
