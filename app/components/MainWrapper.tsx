@@ -7,7 +7,7 @@ export function MainWrapper({ children }: { children: React.ReactNode }) {
   return (
     <main
       key={pathname}
-      className="flex-1 overflow-auto bg-[#f8fafc] pt-16 md:pt-0 md:ml-64 animate-pageTransition"
+      className="flex-1 overflow-auto bg-[#f8fafc] pt-14 pb-[72px] md:pt-0 md:pb-0 md:ml-64 animate-pageTransition"
     >
       {children}
     </main>

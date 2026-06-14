@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { getDashboardData } from "./actions/dashboard";
-import { LoadingSpinner, EmptyState } from "./components/ui";
+import { EmptyState } from "./components/ui";
 import { formatNumber, formatDate } from "@/lib/format";
 import { formatUserName } from "@/lib/auth";
 import Link from "next/link";
@@ -19,6 +19,59 @@ interface DashboardData {
   lowStockCount: number;
   lowStockComponents: any[];
   recentTransactions: any[];
+}
+
+/** Renders immediately — shows shimmering placeholders while data loads */
+function DashboardSkeleton() {
+  return (
+    <div className="p-6 md:p-8 max-w-7xl mx-auto space-y-8 animate-fadeIn">
+      <div className="space-y-2">
+        <div className="h-8 w-36 rounded-xl skeleton-shimmer" />
+        <div className="h-4 w-64 rounded-lg skeleton-shimmer" />
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {[0, 1, 2].map((i) => (
+          <div key={i} className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm space-y-4">
+            <div className="flex items-start justify-between">
+              <div className="space-y-2 flex-1">
+                <div className="h-3 w-28 rounded skeleton-shimmer" />
+                <div className="h-8 w-16 rounded-lg skeleton-shimmer" />
+              </div>
+              <div className="h-12 w-12 rounded-xl skeleton-shimmer" />
+            </div>
+            <div className="h-3 w-32 rounded skeleton-shimmer" />
+          </div>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm space-y-4">
+          <div className="h-5 w-32 rounded skeleton-shimmer" />
+          {[0, 1, 2, 3].map((i) => (
+            <div key={i} className="flex justify-between items-center py-2 border-b border-gray-50">
+              <div className="space-y-1.5">
+                <div className="h-3.5 w-28 rounded skeleton-shimmer" />
+                <div className="h-2.5 w-20 rounded skeleton-shimmer" />
+              </div>
+              <div className="h-6 w-14 rounded-full skeleton-shimmer" />
+            </div>
+          ))}
+        </div>
+        <div className="lg:col-span-2 bg-white border border-gray-100 rounded-2xl p-6 shadow-sm space-y-4">
+          <div className="h-5 w-32 rounded skeleton-shimmer" />
+          {[0, 1, 2, 3, 4].map((i) => (
+            <div key={i} className="flex gap-4 py-2 border-b border-gray-50">
+              <div className="h-3.5 flex-1 rounded skeleton-shimmer" />
+              <div className="h-3.5 flex-[2] rounded skeleton-shimmer" />
+              <div className="h-3.5 flex-1 rounded-full skeleton-shimmer" />
+              <div className="h-3.5 flex-1 rounded skeleton-shimmer" />
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export default function Dashboard() {
@@ -40,7 +93,8 @@ export default function Dashboard() {
     loadDashboard();
   }, []);
 
-  if (loading) return <LoadingSpinner />;
+  // Show skeleton immediately — no full-screen spinner blocking
+  if (loading) return <DashboardSkeleton />;
 
   if (error) {
     return (

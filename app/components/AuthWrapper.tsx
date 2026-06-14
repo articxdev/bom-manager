@@ -68,17 +68,17 @@ export function AuthWrapper({ children }: { children: React.ReactNode }) {
     setLoading(true);
     setError(false);
 
-    // Blazing-fast response delay (80ms) for professional responsiveness
     setTimeout(() => {
       const validatedUser = validateLogin(password);
       if (validatedUser && selectedUser && validatedUser.toLowerCase() === selectedUser.username.toLowerCase()) {
         localStorage.setItem(AUTH_KEY, "true");
         localStorage.setItem(USER_KEY, validatedUser);
+        // Small delay to let the skeleton animate in, making data load feel instant
         setIsAuthenticated(true);
       } else {
         setError(true);
+        setLoading(false);
       }
-      setLoading(false);
     }, 80);
   };
 
