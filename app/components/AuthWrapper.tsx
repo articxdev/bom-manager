@@ -229,9 +229,6 @@ export function AuthWrapper({ children }: { children: React.ReactNode }) {
         {/* Footer */}
         <div className="mt-8 text-center text-[10px] sm:text-xs text-slate-400 space-y-1">
           <p>© {new Date().getFullYear()} BOM Manager. All rights reserved.</p>
-          <p>
-            Developed by <span className="text-slate-600 font-semibold capitalize">harigovind</span>
-          </p>
         </div>
       </div>
     </div>
