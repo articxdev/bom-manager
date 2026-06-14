@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { getDashboardData } from "./actions/dashboard";
 import { LoadingSpinner, EmptyState } from "./components/ui";
 import { formatNumber, formatDate } from "@/lib/format";
+import { formatUserName } from "@/lib/auth";
 import Link from "next/link";
 import {
   AlertTriangle,
@@ -171,6 +172,7 @@ export default function Dashboard() {
                       <th className="text-left py-3 px-6 font-semibold text-gray-500 text-xs uppercase tracking-wider">Date</th>
                       <th className="text-left py-3 px-6 font-semibold text-gray-500 text-xs uppercase tracking-wider">Component</th>
                       <th className="text-left py-3 px-6 font-semibold text-gray-500 text-xs uppercase tracking-wider">Type</th>
+                      <th className="text-left py-3 px-6 font-semibold text-gray-500 text-xs uppercase tracking-wider">Entered By</th>
                       <th className="text-right py-3 px-6 font-semibold text-gray-500 text-xs uppercase tracking-wider">Change</th>
                       <th className="text-right py-3 px-6 font-semibold text-gray-500 text-xs uppercase tracking-wider">Balance</th>
                     </tr>
@@ -198,6 +200,9 @@ export default function Dashboard() {
                           >
                             {tx.type}
                           </span>
+                        </td>
+                        <td className="py-3 px-6 text-gray-600 text-xs capitalize">
+                          {tx.enteredBy ? formatUserName(tx.enteredBy) : "—"}
                         </td>
                         <td className="py-3 px-6 text-right font-semibold">
                           <span className={tx.quantityChange > 0 ? "text-emerald-600" : "text-rose-600"}>

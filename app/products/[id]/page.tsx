@@ -4,6 +4,7 @@ import { useEffect, useState, use } from "react";
 import { getProduct, calculateProductionCapacity } from "@/app/actions/products";
 import { formatDate, formatNumber } from "@/lib/format";
 import { useRouter, useParams } from "next/navigation";
+import { formatUserName } from "@/lib/auth";
 
 export default function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
@@ -52,9 +53,10 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
             {product.description && (
               <p className="text-slate-600 mt-2">{product.description}</p>
             )}
-            <p className="text-xs text-slate-500 mt-4">
-              Created: {formatDate(product.createdAt)}
-            </p>
+            <div className="flex gap-4 mt-4 text-xs text-slate-500">
+              <p>Created: {formatDate(product.createdAt)}</p>
+              <p className="capitalize">Entered By: {product.enteredBy ? formatUserName(product.enteredBy) : "—"}</p>
+            </div>
           </div>
 
           {/* BOM Table */}

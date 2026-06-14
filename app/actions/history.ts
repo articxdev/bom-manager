@@ -39,7 +39,7 @@ export async function getTransactions(
   }
 }
 
-export async function reverseTransaction(transactionId: string) {
+export async function reverseTransaction(transactionId: string, enteredBy?: string) {
   try {
     const transaction = await prisma.transaction.findUnique({
       where: { id: transactionId },
@@ -81,6 +81,7 @@ export async function reverseTransaction(transactionId: string) {
           resultingBalance: newStock,
           reversedTransactionId: transactionId,
           note: `Reversal of ${transaction.type} transaction from ${transaction.createdAt.toLocaleDateString()}`,
+          enteredBy,
         },
       });
 

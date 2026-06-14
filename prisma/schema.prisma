@@ -6,7 +6,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -15,10 +15,11 @@ model Component {
   name              String   @unique
   category          String
   unit              String   // e.g., "pcs", "meter", "gram"
-  currentStock      Float    @default(0)
-  reorderThreshold  Float    @default(0)
+  currentStock      Int      @default(0)
+  reorderThreshold  Int      @default(0)
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
+  enteredBy         String?  // Who created it
 
   bomItems      BOMItem[]
   transactions  Transaction[]
@@ -33,6 +34,7 @@ model Product {
   description String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  enteredBy   String?  // Who created it
 
   bomItems     BOMItem[]
   transactions Transaction[]
@@ -44,7 +46,7 @@ model BOMItem {
   id              String   @id @default(cuid())
   productId       String
   componentId     String
-  quantityPerUnit Float
+  quantityPerUnit Int
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
@@ -60,11 +62,12 @@ model Transaction {
   id                      String   @id @default(cuid())
   componentId             String
   type                    String   // PRODUCTION, DAMAGE, STOCK_IN, MANUAL_ADJUST, REVERSAL (SQLite doesn't support enums)
-  quantityChange          Float
-  resultingBalance        Float
+  quantityChange          Int
+  resultingBalance        Int
   productId               String?
-  productionQuantity      Float?         // units produced if PRODUCTION type
+  productionQuantity      Int?         // units produced if PRODUCTION type
   note                    String?
+  enteredBy               String?
   createdAt               DateTime @default(now())
   reversedTransactionId   String?  @unique // self-relation for reversals (unique for one-to-one)
 

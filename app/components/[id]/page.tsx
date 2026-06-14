@@ -8,6 +8,7 @@ import { StockAdjustmentForm } from "@/app/components/forms/StockAdjustmentForm"
 import { formatDate, formatNumber } from "@/lib/format";
 import { useState as useStdState } from "react";
 import { AlertTriangle } from "lucide-react";
+import { formatUserName } from "@/lib/auth";
 
 export default function ComponentDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
@@ -74,7 +75,7 @@ export default function ComponentDetailPage({ params }: { params: Promise<{ id: 
                 }}
               />
             ) : (
-              <div className="grid grid-cols-2 gap-6">
+              <div className="grid grid-cols-3 gap-6">
                 <div>
                   <p className="text-sm text-slate-600 font-medium">Unit</p>
                   <p className="text-lg font-semibold text-slate-900 mt-1">
@@ -85,6 +86,12 @@ export default function ComponentDetailPage({ params }: { params: Promise<{ id: 
                   <p className="text-sm text-slate-600 font-medium">Created</p>
                   <p className="text-lg font-semibold text-slate-900 mt-1">
                     {formatDate(component.createdAt)}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-sm text-slate-600 font-medium">Entered By</p>
+                  <p className="text-lg font-semibold text-slate-900 capitalize mt-1">
+                    {component.enteredBy ? formatUserName(component.enteredBy) : "—"}
                   </p>
                 </div>
               </div>
@@ -178,6 +185,11 @@ export default function ComponentDetailPage({ params }: { params: Promise<{ id: 
                     <p className="text-xs text-slate-600 mt-1">
                       {formatDate(tx.createdAt)}
                     </p>
+                    {tx.enteredBy && (
+                      <p className="text-xs text-violet-600 mt-0.5 capitalize">
+                        by {tx.enteredBy}
+                      </p>
+                    )}
                   </div>
                 ))}
               </div>

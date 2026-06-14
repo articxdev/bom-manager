@@ -5,13 +5,15 @@ import { ProductInput, BOMItemInput } from "@/lib/schemas";
 
 export async function createProduct(
   productData: ProductInput,
-  bomItems: BOMItemInput[]
+  bomItems: BOMItemInput[],
+  enteredBy?: string
 ) {
   try {
     const product = await prisma.product.create({
       data: {
         name: productData.name,
         description: productData.description || undefined,
+        enteredBy,
         bomItems: {
           create: bomItems,
         },
@@ -30,7 +32,8 @@ export async function createProduct(
 export async function updateProduct(
   id: string,
   productData: ProductInput,
-  bomItems: BOMItemInput[]
+  bomItems: BOMItemInput[],
+  enteredBy?: string
 ) {
   try {
     const product = await prisma.product.update({
@@ -38,6 +41,7 @@ export async function updateProduct(
       data: {
         name: productData.name,
         description: productData.description || undefined,
+        enteredBy,
         bomItems: {
           deleteMany: {},
           create: bomItems,
@@ -58,7 +62,7 @@ export async function getProducts(search?: string) {
   try {
     const products = await prisma.product.findMany({
       where: search
-        ? { name: { contains: search, mode: "insensitive" } }
+        ? { name: { contains: search } }
         : undefined,
       include: {
         bomItems: {

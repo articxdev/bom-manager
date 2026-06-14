@@ -5,6 +5,7 @@ import { useRouter, useParams } from "next/navigation";
 import { getProduct } from "@/app/actions/products";
 import { recordProduction } from "@/app/actions/transactions";
 import { formatNumber } from "@/lib/format";
+import { getLoggedInUser } from "@/lib/auth";
 import { AlertTriangle } from "lucide-react";
 
 export default function ProductionPage() {
@@ -58,7 +59,8 @@ export default function ProductionPage() {
     const result = await recordProduction(
       selectedProductId,
       quantity,
-      insufficientItems.length > 0
+      insufficientItems.length > 0,
+      getLoggedInUser() || undefined
     );
 
     if (result.success) {

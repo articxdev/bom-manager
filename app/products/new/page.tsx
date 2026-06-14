@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { createProduct } from "@/app/actions/products";
 import { getComponents } from "@/app/actions/components";
 import { useEffect } from "react";
+import { getLoggedInUser } from "@/lib/auth";
 
 export default function NewProductPage() {
   const router = useRouter();
@@ -47,7 +48,8 @@ export default function NewProductPage() {
 
     const result = await createProduct(
       { name, description },
-      bomItems.map((b) => ({ componentId: b.componentId, quantityPerUnit: b.quantityPerUnit }))
+      bomItems.map((b) => ({ componentId: b.componentId, quantityPerUnit: b.quantityPerUnit })),
+      getLoggedInUser() || undefined
     );
 
     if (result.success) {
@@ -150,12 +152,12 @@ export default function NewProductPage() {
                     <input
                       type="number"
                       required
-                      step="0.01"
-                      min="0.01"
+                      step="1"
+                      min="1"
                       value={item.quantityPerUnit}
                       onChange={(e) => {
                         const newItems = [...bomItems];
-                        newItems[idx].quantityPerUnit = parseFloat(e.target.value);
+                        newItems[idx].quantityPerUnit = parseInt(e.target.value);
                         setBomItems(newItems);
                       }}
                       className="w-full px-2 py-1 border border-slate-300 rounded text-sm"

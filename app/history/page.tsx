@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { getTransactionHistory, reverseTransaction } from "@/app/actions/history";
 import { generateCSV, downloadCSV } from "@/lib/csv";
 import { formatDate, formatNumber } from "@/lib/format";
+import { getLoggedInUser, formatUserName } from "@/lib/auth";
 import { Download, Undo } from "lucide-react";
 
 export default function HistoryPage() {
@@ -31,7 +32,7 @@ export default function HistoryPage() {
   }
 
   async function handleReverse(txId: string) {
-    const result = await reverseTransaction(txId);
+    const result = await reverseTransaction(txId, getLoggedInUser() || undefined);
     if (result.success) {
       loadTransactions();
     } else {
@@ -46,6 +47,7 @@ export default function HistoryPage() {
       "Type",
       "Quantity Change",
       "Resulting Balance",
+      "Entered By",
       "Note",
     ];
     const rows = transactions.map((tx) => [
@@ -54,6 +56,7 @@ export default function HistoryPage() {
       tx.type,
       tx.quantityChange,
       tx.resultingBalance,
+      tx.enteredBy ? formatUserName(tx.enteredBy) : "",
       tx.note || "",
     ]);
     const csv = generateCSV(headers, rows as any);
@@ -90,6 +93,7 @@ export default function HistoryPage() {
                   <th className="text-left py-3 px-4 font-semibold text-slate-700">Type</th>
                   <th className="text-right py-3 px-4 font-semibold text-slate-700">Change</th>
                   <th className="text-right py-3 px-4 font-semibold text-slate-700">Balance</th>
+                  <th className="text-left py-3 px-4 font-semibold text-slate-700">Entered By</th>
                   <th className="text-left py-3 px-4 font-semibold text-slate-700">Note</th>
                   <th className="text-center py-3 px-4 font-semibold text-slate-700">Actions</th>
                 </tr>
@@ -130,6 +134,9 @@ export default function HistoryPage() {
                     </td>
                     <td className="py-3 px-4 text-right font-medium text-slate-900">
                       {formatNumber(tx.resultingBalance)}
+                    </td>
+                    <td className="py-3 px-4 text-slate-600 text-xs capitalize">
+                      {tx.enteredBy ? formatUserName(tx.enteredBy) : "—"}
                     </td>
                     <td className="py-3 px-4 text-slate-600 text-xs max-w-xs truncate">
                       {tx.note}

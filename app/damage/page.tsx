@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { recordDamage } from "@/app/actions/transactions";
 import { getComponents } from "@/app/actions/components";
+import { getLoggedInUser } from "@/lib/auth";
 
 export default function DamagePage() {
   const router = useRouter();
@@ -39,7 +40,8 @@ export default function DamagePage() {
       selectedComponentId,
       quantity,
       note,
-      confirm
+      confirm,
+      getLoggedInUser() || undefined
     );
 
     if (result.success) {
@@ -100,10 +102,10 @@ export default function DamagePage() {
           </label>
           <input
             type="number"
-            min="0.01"
-            step="0.01"
+            min="1"
+            step="1"
             value={quantity}
-            onChange={(e) => setQuantity(parseFloat(e.target.value) || 0)}
+            onChange={(e) => setQuantity(parseInt(e.target.value) || 0)}
             className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-gray-800 bg-white focus:ring-2 focus:ring-violet-500/20 focus:border-violet-400 outline-none transition-all text-sm"
           />
         </div>

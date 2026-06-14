@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { createComponent, updateComponent } from "@/app/actions/components";
 import { componentSchema, ComponentInput } from "@/lib/schemas";
 import { X } from "lucide-react";
+import { getLoggedInUser } from "@/lib/auth";
 
 interface ComponentFormProps {
   component?: any;
@@ -30,9 +31,10 @@ export function ComponentForm({ component, onClose }: ComponentFormProps) {
 
     try {
       const validated = componentSchema.parse(formData);
+      const user = getLoggedInUser() || undefined;
       const result = component
-        ? await updateComponent(component.id, validated)
-        : await createComponent(validated);
+        ? await updateComponent(component.id, { ...validated, enteredBy: user })
+        : await createComponent(validated, user);
 
       if (result.success) {
         router.refresh();
@@ -107,12 +109,12 @@ export function ComponentForm({ component, onClose }: ComponentFormProps) {
           <input
             type="number"
             required
-            step="0.01"
+            step="1"
             value={formData.currentStock}
             onChange={(e) =>
               setFormData({
                 ...formData,
-                currentStock: parseFloat(e.target.value) || 0,
+                currentStock: parseInt(e.target.value) || 0,
               })
             }
             className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -126,12 +128,12 @@ export function ComponentForm({ component, onClose }: ComponentFormProps) {
           <input
             type="number"
             required
-            step="0.01"
+            step="1"
             value={formData.reorderThreshold}
             onChange={(e) =>
               setFormData({
                 ...formData,
-                reorderThreshold: parseFloat(e.target.value) || 0,
+                reorderThreshold: parseInt(e.target.value) || 0,
               })
             }
             className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"

@@ -5,7 +5,8 @@ import prisma from "@/lib/prisma";
 export async function recordProduction(
   productId: string,
   quantity: number,
-  confirmNegativeStock: boolean = false
+  confirmNegativeStock: boolean = false,
+  enteredBy?: string
 ) {
   try {
     const product = await prisma.product.findUnique({
@@ -71,6 +72,7 @@ export async function recordProduction(
             productId,
             productionQuantity: quantity,
             note: `Produced ${quantity} unit(s) of ${product.name}`,
+            enteredBy,
           },
         });
 
@@ -90,7 +92,8 @@ export async function recordDamage(
   componentId: string,
   quantity: number,
   note: string,
-  confirmNegativeStock: boolean = false
+  confirmNegativeStock: boolean = false,
+  enteredBy?: string
 ) {
   try {
     const component = await prisma.component.findUnique({
@@ -125,6 +128,7 @@ export async function recordDamage(
           quantityChange: -quantity,
           resultingBalance: newStock,
           note: note || "Damage/loss recorded",
+          enteredBy,
         },
       });
 
@@ -140,7 +144,8 @@ export async function recordDamage(
 export async function recordStockIn(
   componentId: string,
   quantity: number,
-  note?: string
+  note?: string,
+  enteredBy?: string
 ) {
   try {
     const component = await prisma.component.findUnique({
@@ -166,6 +171,7 @@ export async function recordStockIn(
           quantityChange: quantity,
           resultingBalance: newStock,
           note: note || "Stock received",
+          enteredBy,
         },
       });
 

@@ -6,6 +6,7 @@ import Link from "next/link";
 import { getProducts } from "@/app/actions/products";
 import { generateCSV, downloadCSV } from "@/lib/csv";
 import { formatDate, formatNumber } from "@/lib/format";
+import { formatUserName } from "@/lib/auth";
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<any[]>([]);
@@ -99,6 +100,9 @@ export default function ProductsPage() {
                 </p>
                 <p className="text-xs text-slate-500 mt-2">
                   Created: {formatDate(product.createdAt)}
+                </p>
+                <p className="text-xs text-slate-500 mt-1 capitalize">
+                  Entered By: {product.enteredBy ? formatUserName(product.enteredBy) : "—"}
                 </p>
               </div>
             </Link>

@@ -3,17 +3,36 @@
 import prisma from "@/lib/prisma";
 import { ComponentInput, ManualAdjustmentInput } from "@/lib/schemas";
 
-export async function createComponent(data: ComponentInput) {
+export async function createComponent(data: ComponentInput, enteredBy?: string) {
   try {
-    const component = await prisma.component.create({
-      data: {
-        name: data.name,
-        category: data.category,
-        unit: data.unit,
-        currentStock: data.currentStock,
-        reorderThreshold: data.reorderThreshold,
-      },
+    const component = await prisma.$transaction(async (tx) => {
+      const comp = await tx.component.create({
+        data: {
+          name: data.name,
+          category: data.category,
+          unit: data.unit,
+          currentStock: data.currentStock,
+          reorderThreshold: data.reorderThreshold,
+          enteredBy,
+        },
+      });
+
+      if (data.currentStock > 0) {
+        await tx.transaction.create({
+          data: {
+            componentId: comp.id,
+            type: "STOCK_IN",
+            quantityChange: data.currentStock,
+            resultingBalance: data.currentStock,
+            note: "Initial stock on creation",
+            enteredBy,
+          },
+        });
+      }
+
+      return comp;
     });
+
     return { success: true, data: component };
   } catch (error: any) {
     if (error.code === "P2002") {
@@ -23,11 +42,18 @@ export async function createComponent(data: ComponentInput) {
   }
 }
 
-export async function updateComponent(id: string, data: Partial<ComponentInput>) {
+export async function updateComponent(id: string, data: Partial<ComponentInput> & { enteredBy?: string }) {
   try {
     const component = await prisma.component.update({
       where: { id },
-      data,
+      data: {
+        name: data.name,
+        category: data.category,
+        unit: data.unit,
+        currentStock: data.currentStock,
+        reorderThreshold: data.reorderThreshold,
+        enteredBy: data.enteredBy,
+      },
     });
     return { success: true, data: component };
   } catch (error: any) {
@@ -46,7 +72,7 @@ export async function getComponents(
     const components = await prisma.component.findMany({
       where: {
         AND: [
-          search ? { name: { contains: search, mode: "insensitive" } } : {},
+          search ? { name: { contains: search } } : {},
           category ? { category } : {},
         ],
       },
@@ -89,7 +115,8 @@ export async function getComponent(id: string) {
 
 export async function adjustComponentStock(
   id: string,
-  adjustment: ManualAdjustmentInput
+  adjustment: ManualAdjustmentInput,
+  enteredBy?: string
 ) {
   try {
     const component = await prisma.component.findUnique({
@@ -119,6 +146,7 @@ export async function adjustComponentStock(
           quantityChange: adjustment.quantityChange,
           resultingBalance: newStock,
           note: adjustment.note,
+          enteredBy,
         },
       });
 

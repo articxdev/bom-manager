@@ -6,6 +6,7 @@ import { useEffect } from "react";
 import { formatNumber } from "@/lib/format";
 import { AlertTriangle, Edit, Plus } from "lucide-react";
 import Link from "next/link";
+import { formatUserName } from "@/lib/auth";
 
 interface ComponentsListProps {
   onEdit?: (component: any) => void;
@@ -83,6 +84,7 @@ export function ComponentsList({ onEdit }: ComponentsListProps) {
                 <th className="text-left py-3.5 px-5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Unit</th>
                 <th className="text-right py-3.5 px-5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Stock</th>
                 <th className="text-right py-3.5 px-5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Threshold</th>
+                <th className="text-left py-3.5 px-5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Entered By</th>
                 <th className="text-center py-3.5 px-5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Status</th>
                 <th className="text-center py-3.5 px-5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Actions</th>
               </tr>
@@ -107,6 +109,9 @@ export function ComponentsList({ onEdit }: ComponentsListProps) {
                     </td>
                     <td className="py-3.5 px-5 text-right text-gray-500">
                       {formatNumber(component.reorderThreshold)}
+                    </td>
+                    <td className="py-3.5 px-5 text-gray-600 text-xs capitalize">
+                      {component.enteredBy ? formatUserName(component.enteredBy) : "—"}
                     </td>
                     <td className="py-3.5 px-5 text-center">
                       {isLowStock ? (

@@ -1,4 +1,4 @@
-export function formatNumber(value: number, decimals: number = 2): string {
+export function formatNumber(value: number, decimals: number = 0): string {
   return Number(value.toFixed(decimals)).toLocaleString();
 }
 

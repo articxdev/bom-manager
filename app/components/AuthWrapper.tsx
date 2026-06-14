@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Lock, ArrowRight, Eye, EyeOff } from "lucide-react";
+import { AUTH_KEY, USER_KEY, validateLogin } from "@/lib/auth";
 
 export function AuthWrapper({ children }: { children: React.ReactNode }) {
   const [password, setPassword] = useState("");
@@ -12,8 +13,9 @@ export function AuthWrapper({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const auth = localStorage.getItem("bom_auth");
-    if (auth === "true") {
+    const auth = localStorage.getItem(AUTH_KEY);
+    const user = localStorage.getItem(USER_KEY);
+    if (auth === "true" && user) {
       setIsAuthenticated(true);
     }
     setMounted(true);
@@ -38,8 +40,10 @@ export function AuthWrapper({ children }: { children: React.ReactNode }) {
 
     // Simulate a slight network delay for premium feel
     setTimeout(() => {
-      if (password === "4321") {
-        localStorage.setItem("bom_auth", "true");
+      const user = validateLogin(password);
+      if (user) {
+        localStorage.setItem(AUTH_KEY, "true");
+        localStorage.setItem(USER_KEY, user);
         setIsAuthenticated(true);
       } else {
         setError(true);
@@ -68,6 +72,7 @@ export function AuthWrapper({ children }: { children: React.ReactNode }) {
             </div>
             <h2 className="text-2xl font-bold tracking-tight text-white">Secure Access</h2>
             <p className="text-slate-400 text-sm mt-1">Enter your password to access BOM Manager</p>
+            <p className="text-slate-500 text-xs mt-2">Users: harigovind, rahul, shilna</p>
           </div>
 
           {/* Form */}

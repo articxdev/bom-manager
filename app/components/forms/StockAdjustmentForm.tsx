@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { adjustComponentStock } from "@/app/actions/components";
 import { manualAdjustmentSchema, ManualAdjustmentInput } from "@/lib/schemas";
+import { getLoggedInUser } from "@/lib/auth";
 
 interface StockAdjustmentFormProps {
   componentId: string;
@@ -33,7 +34,11 @@ export function StockAdjustmentForm({
 
     try {
       const validated = manualAdjustmentSchema.parse(formData);
-      const result = await adjustComponentStock(componentId, validated);
+      const result = await adjustComponentStock(
+        componentId,
+        validated,
+        getLoggedInUser() || undefined
+      );
 
       if (result.success) {
         router.refresh();
@@ -70,12 +75,12 @@ export function StockAdjustmentForm({
         <input
           type="number"
           required
-          step="0.01"
+          step="1"
           value={formData.quantityChange}
           onChange={(e) =>
             setFormData({
               ...formData,
-              quantityChange: parseFloat(e.target.value) || 0,
+              quantityChange: parseInt(e.target.value) || 0,
             })
           }
           className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"

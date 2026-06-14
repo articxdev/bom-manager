@@ -9,16 +9,23 @@ import {
   Zap,
   AlertTriangle,
   TrendingUp,
+  RefreshCw,
   History,
   Menu,
   X,
   LogOut,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { AUTH_KEY, USER_KEY, formatUserName } from "@/lib/auth";
 
 export function Sidebar() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
+  const [loggedInUser, setLoggedInUser] = useState<string | null>(null);
+
+  useEffect(() => {
+    setLoggedInUser(localStorage.getItem(USER_KEY));
+  }, []);
 
   const links = [
     { href: "/", label: "Dashboard", icon: BarChart3, color: "text-violet-400" },
@@ -27,6 +34,7 @@ export function Sidebar() {
     { href: "/production", label: "Production", icon: Zap, color: "text-emerald-400" },
     { href: "/damage", label: "Damage", icon: AlertTriangle, color: "text-rose-400" },
     { href: "/stock-in", label: "Stock In", icon: TrendingUp, color: "text-teal-400" },
+    { href: "/restock", label: "Restock", icon: RefreshCw, color: "text-emerald-400" },
     { href: "/history", label: "History", icon: History, color: "text-indigo-400" },
   ];
 
@@ -78,13 +86,19 @@ export function Sidebar() {
 
         {/* Footer */}
         <div className="absolute bottom-5 left-5 right-5 border-t border-gray-100 pt-4 space-y-3">
+          {loggedInUser && (
+            <div className="text-xs text-gray-600 px-3 py-2 bg-violet-50 rounded-xl">
+              Logged in as <span className="font-semibold text-violet-700 capitalize">{formatUserName(loggedInUser)}</span>
+            </div>
+          )}
           <div className="text-xs text-gray-500 px-1">
             <p className="font-semibold text-gray-700">BOM Manager v1.0</p>
             <p className="mt-1">Developed by <span className="text-violet-600 font-semibold">harigovind</span></p>
           </div>
           <button
             onClick={() => {
-              localStorage.removeItem("bom_auth");
+              localStorage.removeItem(AUTH_KEY);
+              localStorage.removeItem(USER_KEY);
               window.location.reload();
             }}
             className="flex items-center gap-2 text-xs text-red-500 hover:text-red-600 transition-colors py-2 px-3 hover:bg-red-50 rounded-xl w-full text-left font-medium"

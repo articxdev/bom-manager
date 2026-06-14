@@ -4,8 +4,8 @@ export const componentSchema = z.object({
   name: z.string().min(1, "Name is required").min(2, "Name must be at least 2 characters"),
   category: z.string().min(1, "Category is required"),
   unit: z.string().min(1, "Unit is required"),
-  currentStock: z.coerce.number().min(0, "Stock cannot be negative"),
-  reorderThreshold: z.coerce.number().min(0, "Threshold cannot be negative"),
+  currentStock: z.coerce.number().int().min(0, "Stock cannot be negative"),
+  reorderThreshold: z.coerce.number().int().min(0, "Threshold cannot be negative"),
 });
 
 export const productSchema = z.object({
@@ -15,7 +15,7 @@ export const productSchema = z.object({
 
 export const bomItemSchema = z.object({
   componentId: z.string().min(1, "Component is required"),
-  quantityPerUnit: z.coerce.number().min(0.01, "Quantity must be greater than 0"),
+  quantityPerUnit: z.coerce.number().int().min(1, "Quantity must be at least 1"),
 });
 
 export const productWithBOMSchema = productSchema.extend({
@@ -23,7 +23,7 @@ export const productWithBOMSchema = productSchema.extend({
 });
 
 export const manualAdjustmentSchema = z.object({
-  quantityChange: z.coerce.number(),
+  quantityChange: z.coerce.number().int(),
   note: z.string().min(1, "Note/reason is required"),
 });
 
@@ -35,14 +35,14 @@ export const productionSchema = z.object({
 
 export const damageSchema = z.object({
   componentId: z.string().min(1, "Component is required"),
-  quantity: z.coerce.number().min(0.01, "Quantity must be greater than 0"),
+  quantity: z.coerce.number().int().min(1, "Quantity must be at least 1"),
   note: z.string().optional().default(""),
   confirmNegativeStock: z.boolean().optional().default(false),
 });
 
 export const stockInSchema = z.object({
   componentId: z.string().min(1, "Component is required"),
-  quantity: z.coerce.number().min(0.01, "Quantity must be greater than 0"),
+  quantity: z.coerce.number().int().min(1, "Quantity must be at least 1"),
 });
 
 export type ComponentInput = z.infer<typeof componentSchema>;
