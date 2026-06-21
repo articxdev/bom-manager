@@ -187,8 +187,8 @@ export default function RestockPage() {
             <AlertTriangle size={18} className="text-rose-500" />
             Low Stock Items
           </h2>
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-            <table className="w-full text-sm">
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-x-auto">
+            <table className="w-full text-sm min-w-[800px]">
               <thead>
                 <tr className="border-b border-gray-100 bg-rose-50/50">
                   <th className="text-left py-3.5 px-5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Component</th>
@@ -253,8 +253,8 @@ export default function RestockPage() {
           <Package size={18} className="text-sky-500" />
           All Stock
         </h2>
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-          <table className="w-full text-sm">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-x-auto">
+          <table className="w-full text-sm min-w-[800px]">
             <thead>
               <tr className="border-b border-gray-100">
                 <th className="text-left py-3.5 px-5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Component</th>

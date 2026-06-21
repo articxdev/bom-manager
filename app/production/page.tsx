@@ -188,7 +188,7 @@ export default function ProductionPage() {
             <div className="bg-white rounded-3xl border border-gray-200/60 shadow-sm p-6 sm:p-8">
               <h2 className="text-lg font-bold text-gray-900 mb-4">BOM Component Preview</h2>
               <div className="overflow-x-auto">
-                <table className="w-full text-sm">
+                <table className="w-full text-sm min-w-[700px]">
                   <thead>
                     <tr className="border-b border-gray-150 bg-gray-50/50">
                       <th className="text-left py-3 px-4 font-semibold text-gray-500 text-xs uppercase tracking-wider">Component</th>

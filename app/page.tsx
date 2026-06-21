@@ -11,11 +11,13 @@ import {
   TrendingUp,
   Package,
   Activity,
+  Wrench,
 } from "lucide-react";
 
 interface DashboardData {
   totalComponents: number;
   totalProducts: number;
+  totalProductsGenerated: number;
   lowStockCount: number;
   lowStockComponents: any[];
   recentTransactions: any[];
@@ -30,8 +32,8 @@ function DashboardSkeleton() {
         <div className="h-4 w-64 rounded-lg skeleton-shimmer" />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {[0, 1, 2].map((i) => (
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {[0, 1, 2, 3].map((i) => (
           <div key={i} className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm space-y-4">
             <div className="flex items-start justify-between">
               <div className="space-y-2 flex-1">
@@ -83,7 +85,7 @@ export default function Dashboard() {
     async function loadDashboard() {
       const result = await getDashboardData();
       if (result.success && result.data) {
-        setData(result.data);
+        setData(result.data as any);
       } else {
         setError(result.error || "Failed to load dashboard data");
       }
@@ -117,7 +119,7 @@ export default function Dashboard() {
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {/* Total Components */}
         <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow duration-300">
           <div className="flex items-start justify-between">
@@ -139,11 +141,11 @@ export default function Dashboard() {
           </Link>
         </div>
 
-        {/* Total Products */}
+        {/* Product Catalog */}
         <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow duration-300">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-gray-500 text-xs font-semibold uppercase tracking-wider">Total Products</p>
+              <p className="text-gray-500 text-xs font-semibold uppercase tracking-wider">Product Types</p>
               <p className="text-3xl font-extrabold text-gray-900 mt-2">
                 {formatNumber(data.totalProducts, 0)}
               </p>
@@ -157,6 +159,27 @@ export default function Dashboard() {
             className="text-emerald-600 text-xs font-semibold mt-5 flex items-center gap-1 hover:gap-2 transition-all"
           >
             Manage Catalog & BOMs →
+          </Link>
+        </div>
+
+        {/* Total Manufactured */}
+        <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow duration-300">
+          <div className="flex items-start justify-between">
+            <div>
+              <p className="text-gray-500 text-xs font-semibold uppercase tracking-wider">Products Generated</p>
+              <p className="text-3xl font-extrabold text-gray-900 mt-2">
+                {formatNumber(data.totalProductsGenerated, 0)}
+              </p>
+            </div>
+            <div className="p-3 bg-violet-50 rounded-xl">
+              <Wrench className="w-6 h-6 text-violet-500" />
+            </div>
+          </div>
+          <Link
+            href="/history"
+            className="text-violet-600 text-xs font-semibold mt-5 flex items-center gap-1 hover:gap-2 transition-all"
+          >
+            View Production History →
           </Link>
         </div>
 
@@ -220,7 +243,7 @@ export default function Dashboard() {
             </h2>
             {data.recentTransactions.length > 0 ? (
               <div className="overflow-x-auto -mx-6">
-                <table className="w-full text-sm min-w-[500px]">
+                <table className="w-full text-sm min-w-[700px]">
                   <thead>
                     <tr className="border-b border-gray-100">
                       <th className="text-left py-3 px-6 font-semibold text-gray-500 text-xs uppercase tracking-wider">Date</th>

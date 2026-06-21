@@ -29,11 +29,35 @@ export async function getDashboardData() {
       },
     });
 
+    // Calculate total products generated (produced)
+    const productionTransactions = await prisma.transaction.findMany({
+      where: {
+        type: "PRODUCTION",
+        reversedByTransaction: null,
+      },
+      select: {
+        productId: true,
+        productionQuantity: true,
+        createdAt: true,
+      },
+    });
+
+    const runsMap = new Map<string, number>();
+    for (const tx of productionTransactions) {
+      if (!tx.productId || tx.productionQuantity === null) continue;
+      const key = `${tx.productId}_${tx.createdAt.toISOString()}`;
+      if (!runsMap.has(key)) {
+        runsMap.set(key, tx.productionQuantity);
+      }
+    }
+    const totalProductsGenerated = Array.from(runsMap.values()).reduce((sum, qty) => sum + qty, 0);
+
     return {
       success: true,
       data: {
         totalComponents,
         totalProducts,
+        totalProductsGenerated,
         lowStockCount,
         lowStockComponents,
         recentTransactions,
@@ -43,4 +67,5 @@ export async function getDashboardData() {
     return { success: false, error: "Failed to fetch dashboard data" };
   }
 }
+
 

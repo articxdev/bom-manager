@@ -76,7 +76,7 @@ export function ComponentsList({ onEdit }: ComponentsListProps) {
         </div>
       ) : (
         <div className="overflow-x-auto bg-white rounded-2xl border border-gray-100 shadow-sm">
-          <table className="w-full text-sm">
+          <table className="w-full text-sm min-w-[800px]">
             <thead>
               <tr className="border-b border-gray-100">
                 <th className="text-left py-3.5 px-5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Name</th>

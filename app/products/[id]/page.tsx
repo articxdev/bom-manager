@@ -53,6 +53,18 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
             {product.description && (
               <p className="text-slate-600 mt-2">{product.description}</p>
             )}
+            
+            <div className="mt-4 p-4 bg-slate-50 rounded-lg grid grid-cols-2 gap-4">
+              <div>
+                <p className="text-xs text-slate-500 uppercase tracking-wider font-semibold">Total Generated</p>
+                <p className="text-2xl font-bold text-emerald-600 mt-1">{formatNumber(product.totalGenerated || 0)} units</p>
+              </div>
+              <div>
+                <p className="text-xs text-slate-500 uppercase tracking-wider font-semibold">BOM Components</p>
+                <p className="text-2xl font-bold text-slate-900 mt-1">{product.bomItems.length}</p>
+              </div>
+            </div>
+
             <div className="flex gap-4 mt-4 text-xs text-slate-500">
               <p>Created: {formatDate(product.createdAt)}</p>
               <p className="capitalize">Entered By: {product.enteredBy ? formatUserName(product.enteredBy) : "—"}</p>
@@ -65,7 +77,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
               Bill of Materials ({product.bomItems.length} components)
             </h2>
             <div className="overflow-x-auto">
-              <table className="w-full text-sm">
+              <table className="w-full text-sm min-w-[600px]">
                 <thead>
                   <tr className="border-b border-slate-200 bg-slate-50">
                     <th className="text-left py-2 px-3 font-semibold text-slate-700">

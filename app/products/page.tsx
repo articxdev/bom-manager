@@ -27,11 +27,12 @@ export default function ProductsPage() {
   }
 
   async function handleExportCSV() {
-    const headers = ["Name", "Description", "Components", "Created"];
+    const headers = ["Name", "Description", "Components", "Total Generated", "Created"];
     const rows = products.map((p) => [
       p.name,
       p.description || "",
       p.bomItems.length,
+      p.totalGenerated || 0,
       p.createdAt,
     ]);
     const csv = generateCSV(headers, rows as any);
@@ -95,10 +96,15 @@ export default function ProductsPage() {
                 </p>
               )}
               <div className="mt-4 pt-4 border-t border-slate-200">
-                <p className="text-sm text-slate-600">
-                  Components: <span className="font-semibold text-slate-900">{product.bomItems.length}</span>
-                </p>
-                <p className="text-xs text-slate-500 mt-2">
+                <div className="grid grid-cols-2 gap-2 text-sm text-slate-600">
+                  <p>
+                    Components: <span className="font-semibold text-slate-900">{product.bomItems.length}</span>
+                  </p>
+                  <p className="text-right">
+                    Generated: <span className="font-semibold text-emerald-600">{formatNumber(product.totalGenerated || 0)}</span>
+                  </p>
+                </div>
+                <p className="text-xs text-slate-500 mt-3">
                   Created: {formatDate(product.createdAt)}
                 </p>
                 <p className="text-xs text-slate-500 mt-1 capitalize">

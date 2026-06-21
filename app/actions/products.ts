@@ -73,7 +73,44 @@ export async function getProducts(search?: string) {
       },
       orderBy: { name: "asc" },
     });
-    return { success: true, data: products };
+
+    // Fetch all production transactions to calculate total generated for each product
+    const productionTransactions = await prisma.transaction.findMany({
+      where: {
+        type: "PRODUCTION",
+        reversedByTransaction: null,
+      },
+      select: {
+        productId: true,
+        productionQuantity: true,
+        createdAt: true,
+      },
+    });
+
+    // Group to find unique production runs
+    const runsMap = new Map<string, number>();
+    for (const tx of productionTransactions) {
+      if (!tx.productId || tx.productionQuantity === null) continue;
+      const key = `${tx.productId}_${tx.createdAt.toISOString()}`;
+      if (!runsMap.has(key)) {
+        runsMap.set(key, tx.productionQuantity);
+      }
+    }
+
+    // Calculate sum for each product
+    const productGenerations = new Map<string, number>();
+    for (const [key, qty] of runsMap.entries()) {
+      const productId = key.split("_")[0];
+      productGenerations.set(productId, (productGenerations.get(productId) || 0) + qty);
+    }
+
+    // Map onto products
+    const productsWithStats = products.map((p) => ({
+      ...p,
+      totalGenerated: productGenerations.get(p.id) || 0,
+    }));
+
+    return { success: true, data: productsWithStats };
   } catch (error) {
     return { success: false, error: "Failed to fetch products" };
   }
@@ -91,7 +128,42 @@ export async function getProduct(id: string) {
         },
       },
     });
-    return { success: true, data: product };
+
+    if (!product) {
+      return { success: false, error: "Product not found" };
+    }
+
+    // Fetch production transactions for this product
+    const productionTransactions = await prisma.transaction.findMany({
+      where: {
+        productId: id,
+        type: "PRODUCTION",
+        reversedByTransaction: null,
+      },
+      select: {
+        productionQuantity: true,
+        createdAt: true,
+      },
+    });
+
+    const runsMap = new Map<string, number>();
+    for (const tx of productionTransactions) {
+      if (tx.productionQuantity === null) continue;
+      const key = tx.createdAt.toISOString();
+      if (!runsMap.has(key)) {
+        runsMap.set(key, tx.productionQuantity);
+      }
+    }
+
+    const totalGenerated = Array.from(runsMap.values()).reduce((sum, qty) => sum + qty, 0);
+
+    return {
+      success: true,
+      data: {
+        ...product,
+        totalGenerated,
+      },
+    };
   } catch (error) {
     return { success: false, error: "Failed to fetch product" };
   }

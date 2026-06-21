@@ -85,7 +85,7 @@ export default function HistoryPage() {
       ) : (
         <>
           <div className="overflow-x-auto bg-white rounded-lg shadow">
-            <table className="w-full text-sm">
+            <table className="w-full text-sm min-w-[800px]">
               <thead>
                 <tr className="border-b border-slate-200 bg-slate-50">
                   <th className="text-left py-3 px-4 font-semibold text-slate-700">Date</th>
