@@ -87,21 +87,28 @@ export async function getProducts(search?: string) {
       },
     });
 
-    // Group to find unique production runs
-    const runsMap = new Map<string, number>();
-    for (const tx of productionTransactions) {
-      if (!tx.productId || tx.productionQuantity === null) continue;
-      const key = `${tx.productId}_${tx.createdAt.toISOString()}`;
-      if (!runsMap.has(key)) {
-        runsMap.set(key, tx.productionQuantity);
-      }
-    }
-
-    // Calculate sum for each product
+    // Group to find unique production runs (transactions within 5 seconds for the same product represent a single batch run)
+    const sortedTxs = [...productionTransactions].sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
+    const activeRuns: { productId: string; quantity: number; lastTime: number }[] = [];
     const productGenerations = new Map<string, number>();
-    for (const [key, qty] of runsMap.entries()) {
-      const productId = key.split("_")[0];
-      productGenerations.set(productId, (productGenerations.get(productId) || 0) + qty);
+
+    for (const tx of sortedTxs) {
+      if (!tx.productId || tx.productionQuantity === null) continue;
+      const txTime = tx.createdAt.getTime();
+      const existingRun = activeRuns.find(
+        (run) => run.productId === tx.productId && Math.abs(txTime - run.lastTime) < 5000
+      );
+
+      if (existingRun) {
+        existingRun.lastTime = txTime;
+      } else {
+        activeRuns.push({
+          productId: tx.productId,
+          quantity: tx.productionQuantity,
+          lastTime: txTime,
+        });
+        productGenerations.set(tx.productId, (productGenerations.get(tx.productId) || 0) + tx.productionQuantity);
+      }
     }
 
     // Map onto products
@@ -146,16 +153,27 @@ export async function getProduct(id: string) {
       },
     });
 
-    const runsMap = new Map<string, number>();
-    for (const tx of productionTransactions) {
+    const sortedTxs = [...productionTransactions].sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
+    const activeRuns: { quantity: number; lastTime: number }[] = [];
+    let totalGenerated = 0;
+
+    for (const tx of sortedTxs) {
       if (tx.productionQuantity === null) continue;
-      const key = tx.createdAt.toISOString();
-      if (!runsMap.has(key)) {
-        runsMap.set(key, tx.productionQuantity);
+      const txTime = tx.createdAt.getTime();
+      const existingRun = activeRuns.find(
+        (run) => Math.abs(txTime - run.lastTime) < 5000
+      );
+
+      if (existingRun) {
+        existingRun.lastTime = txTime;
+      } else {
+        activeRuns.push({
+          quantity: tx.productionQuantity,
+          lastTime: txTime,
+        });
+        totalGenerated += tx.productionQuantity;
       }
     }
-
-    const totalGenerated = Array.from(runsMap.values()).reduce((sum, qty) => sum + qty, 0);
 
     return {
       success: true,

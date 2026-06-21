@@ -42,15 +42,29 @@ export async function getDashboardData() {
       },
     });
 
-    const runsMap = new Map<string, number>();
-    for (const tx of productionTransactions) {
+    // Group to find unique production runs (transactions within 5 seconds for the same product represent a single batch run)
+    const sortedTxs = [...productionTransactions].sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
+    const activeRuns: { productId: string; quantity: number; lastTime: number }[] = [];
+    let totalProductsGenerated = 0;
+
+    for (const tx of sortedTxs) {
       if (!tx.productId || tx.productionQuantity === null) continue;
-      const key = `${tx.productId}_${tx.createdAt.toISOString()}`;
-      if (!runsMap.has(key)) {
-        runsMap.set(key, tx.productionQuantity);
+      const txTime = tx.createdAt.getTime();
+      const existingRun = activeRuns.find(
+        (run) => run.productId === tx.productId && Math.abs(txTime - run.lastTime) < 5000
+      );
+
+      if (existingRun) {
+        existingRun.lastTime = txTime;
+      } else {
+        activeRuns.push({
+          productId: tx.productId,
+          quantity: tx.productionQuantity,
+          lastTime: txTime,
+        });
+        totalProductsGenerated += tx.productionQuantity;
       }
     }
-    const totalProductsGenerated = Array.from(runsMap.values()).reduce((sum, qty) => sum + qty, 0);
 
     return {
       success: true,
